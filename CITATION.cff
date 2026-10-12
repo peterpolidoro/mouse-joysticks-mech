@@ -5,8 +5,12 @@ title: "mouse-joysticks-mech: two-joystick mechanical assembly"
 abstract: >-
   STEP and glTF models of the dual lever assembly in the Janelia Dudman lab
   joystick rig: the two mirrored joystick mechanisms that the
-  mouse-joystick-pcb controller boards drive.
+  mouse-joystick-pcb controller boards drive. Mechanical design by Sam Jager;
+  repository and documentation by Peter Polidoro.
 authors:
+  - family-names: Jager
+    given-names: Sam
+    affiliation: "Janelia Research Campus, Howard Hughes Medical Institute"
   - family-names: Polidoro
     given-names: Peter
     email: polidorop@janelia.hhmi.org

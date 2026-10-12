@@ -11,9 +11,10 @@ geometry only.
 | `mouse-joysticks.stp` | STEP AP214 | 22.6 MB | Open in FreeCAD, Fusion, Inventor, SolidWorks or Onshape to measure, mate against or modify |
 | `mouse-joysticks.glb` | glTF 2.0 binary | 11.3 MB | Open in any glTF viewer or in Blender to look at the assembly |
 
-The assembly was modelled in Autodesk Inventor 2025 and exported to STEP on
-2026-07-22; the STEP header records the file as `Dual Lever Assembly.stp`.
-The native Inventor files are not in this repository.
+The assembly was designed and modelled by Sam Jager (Janelia Research
+Campus) in Autodesk Inventor 2025 and exported to STEP on 2026-07-22; the
+STEP header records the file as `Dual Lever Assembly.stp`. The native
+Inventor files are not in this repository.
 
 ## How The Boards Relate To It
 
