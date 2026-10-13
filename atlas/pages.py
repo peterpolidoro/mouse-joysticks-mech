@@ -18,7 +18,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 REPOS = {
     "mouse-joystick-pcb": ("https://github.com/peterpolidoro/mouse-joystick-pcb", "v1.0"),
     "camera-gpio-interface-pcb": ("https://github.com/peterpolidoro/camera-gpio-interface-pcb", "main"),
-    "mouse-joystick-firm": ("https://github.com/peterpolidoro/mouse-joystick-firm", "main"),
+    "mouse-joystick-firm": ("https://github.com/peterpolidoro/mouse-joystick-firm", "v1.0.0"),
     "joystick-rig": ("https://github.com/sourishmukh/joystick-rig", "main"),
 }
 BOARD_DOCS = {"mouse-joystick-pcb": "docs/interface-map.md", "camera-gpio-interface-pcb": "docs/interface-map.md"}

@@ -24,11 +24,11 @@ Schematic block `brake_torque_sensor/brake_current_sink_0_49ma_dac80501` on the 
 
 ## Firmware
 
-Files: [`mouse-joystick-firm/src/BrakeTorqueHw.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/BrakeTorqueHw.hpp), [`mouse-joystick-firm/src/BrakeTorqueBackend.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/BrakeTorqueBackend.hpp), [`mouse-joystick-firm/src/DAC80501Device.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/DAC80501Device.hpp)
+Files: [`mouse-joystick-firm/src/BrakeTorqueHw.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/BrakeTorqueHw.hpp), [`mouse-joystick-firm/src/BrakeTorqueBackend.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/BrakeTorqueBackend.hpp), [`mouse-joystick-firm/src/DAC80501Device.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/DAC80501Device.hpp)
 
 Protocol: `BRAKE`, `ev RELEASED`, `~BRAKE_FAULT in the fault mask` ([protocol](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/uart-protocol.md))
 
-Proved by: [`mouse-joystick-firm/examples/BrakeAndTorque`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/examples/BrakeAndTorque), [`mouse-joystick-firm/docs/brake-torque-bringup.md`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/docs/brake-torque-bringup.md); measurements in the [bring-up log](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/bringup-log.md) by board serial.
+Proved by: [`mouse-joystick-firm/examples/BrakeAndTorque`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/examples/BrakeAndTorque), [`mouse-joystick-firm/docs/brake-torque-bringup.md`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/docs/brake-torque-bringup.md); measurements in the [bring-up log](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/bringup-log.md) by board serial.
 
 ---
 

@@ -23,11 +23,11 @@ Schematic block `motor_encoder_switch/limit_switch_debounced_input_vertical` on 
 
 ## Firmware
 
-Files: [`mouse-joystick-firm/src/MotionSetup.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/MotionSetup.hpp), [`mouse-joystick-firm/src/TmcMotion.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/TmcMotion.hpp)
+Files: [`mouse-joystick-firm/src/MotionSetup.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/MotionSetup.hpp), [`mouse-joystick-firm/src/TmcMotion.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/TmcMotion.hpp)
 
 Protocol: `HOME`, `ev HOMED` ([protocol](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/uart-protocol.md))
 
-Proved by: [`mouse-joystick-firm/examples/MotionAndHoming`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/examples/MotionAndHoming); measurements in the [bring-up log](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/bringup-log.md) by board serial.
+Proved by: [`mouse-joystick-firm/examples/MotionAndHoming`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/examples/MotionAndHoming); measurements in the [bring-up log](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/bringup-log.md) by board serial.
 
 ---
 

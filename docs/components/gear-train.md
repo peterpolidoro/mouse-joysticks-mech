@@ -12,7 +12,7 @@ Driving gear on the motor shaft, driven gear on the lever axis. The mirrored sta
 
 ## Firmware
 
-Files: [`mouse-joystick-firm/src/Conversions.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/Conversions.hpp)
+Files: [`mouse-joystick-firm/src/Conversions.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/Conversions.hpp)
 
 gear ratio and microsteps per lever degree live here
 

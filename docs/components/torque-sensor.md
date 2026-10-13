@@ -24,11 +24,11 @@ Schematic block `brake_torque_sensor/torque_bridge_0_3v3_ina821` on the joystick
 
 ## Firmware
 
-Files: [`mouse-joystick-firm/src/BrakeTorqueHw.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/BrakeTorqueHw.hpp), [`mouse-joystick-firm/src/ADS8689Device.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/ADS8689Device.hpp), [`mouse-joystick-firm/src/BoardCalibration.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/BoardCalibration.hpp)
+Files: [`mouse-joystick-firm/src/BrakeTorqueHw.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/BrakeTorqueHw.hpp), [`mouse-joystick-firm/src/ADS8689Device.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/ADS8689Device.hpp), [`mouse-joystick-firm/src/BoardCalibration.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/BoardCalibration.hpp)
 
 Protocol: `TQ`, `STATUS (torque)`, `ev TOUCH`, `ev PULL / PUSH` ([protocol](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/uart-protocol.md))
 
-Proved by: [`mouse-joystick-firm/examples/BrakeAndTorque`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/examples/BrakeAndTorque), [`mouse-joystick-firm/docs/brake-torque-bringup.md`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/docs/brake-torque-bringup.md); measurements in the [bring-up log](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/bringup-log.md) by board serial.
+Proved by: [`mouse-joystick-firm/examples/BrakeAndTorque`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/examples/BrakeAndTorque), [`mouse-joystick-firm/docs/brake-torque-bringup.md`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/docs/brake-torque-bringup.md); measurements in the [bring-up log](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/bringup-log.md) by board serial.
 
 ---
 

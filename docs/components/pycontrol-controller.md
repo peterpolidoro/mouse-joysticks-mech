@@ -8,7 +8,7 @@ pyboard PYBv1.1 on a Breakout 1.2; left joystick on port 1, right on port 4, sol
 
 ## Documents
 
-- [`mouse-joystick-firm/pycontrol/README.md`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/pycontrol/README.md)
+- [`mouse-joystick-firm/pycontrol/README.md`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/pycontrol/README.md)
 - [`mouse-joystick-pcb/docs/pycontrol-port-pinout.md`](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/pycontrol-port-pinout.md)
 
 ---

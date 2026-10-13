@@ -24,11 +24,11 @@ Schematic block `motor_encoder_switch/tmc5130` on the joystick board. The block'
 
 ## Firmware
 
-Files: [`mouse-joystick-firm/src/TmcMotion.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/TmcMotion.hpp), [`mouse-joystick-firm/src/MotionSetup.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/MotionSetup.hpp), [`mouse-joystick-firm/src/TmcSpi.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/TmcSpi.hpp), [`mouse-joystick-firm/src/TmcRegisters.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/src/TmcRegisters.hpp)
+Files: [`mouse-joystick-firm/src/TmcMotion.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/TmcMotion.hpp), [`mouse-joystick-firm/src/MotionSetup.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/MotionSetup.hpp), [`mouse-joystick-firm/src/TmcSpi.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/TmcSpi.hpp), [`mouse-joystick-firm/src/TmcRegisters.hpp`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/src/TmcRegisters.hpp)
 
 Protocol: `HOME`, `MOVETO`, `ARM`, `STOP`, `ev TARGET`, `ev HOMED` ([protocol](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/uart-protocol.md))
 
-Proved by: [`mouse-joystick-firm/examples/TMC5130Communication`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/examples/TMC5130Communication), [`mouse-joystick-firm/examples/MotionAndHoming`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/examples/MotionAndHoming), [`mouse-joystick-firm/docs/motion-bringup.md`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/docs/motion-bringup.md); measurements in the [bring-up log](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/bringup-log.md) by board serial.
+Proved by: [`mouse-joystick-firm/examples/TMC5130Communication`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/examples/TMC5130Communication), [`mouse-joystick-firm/examples/MotionAndHoming`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/examples/MotionAndHoming), [`mouse-joystick-firm/docs/motion-bringup.md`](https://github.com/peterpolidoro/mouse-joystick-firm/blob/v1.0.0/docs/motion-bringup.md); measurements in the [bring-up log](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/bringup-log.md) by board serial.
 
 ---
 
