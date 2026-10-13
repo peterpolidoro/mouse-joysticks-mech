@@ -1,6 +1,6 @@
 # Linear stage
 
-![Linear stage, the rest of the station ghosted](../../renders/part-linear-stage.png)
+![Linear stage, the rest of the station ghosted](../renders/part-linear-stage.png)
 
 Base and carriage. Lets the whole station slide along the base plate's long axis to set the lever's distance from the mouse.
 

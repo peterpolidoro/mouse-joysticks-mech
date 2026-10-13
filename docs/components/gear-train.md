@@ -1,6 +1,6 @@
 # Spur gear pair
 
-![Spur gear pair, the rest of the station ghosted](../../renders/part-gear-train.png)
+![Spur gear pair, the rest of the station ghosted](../renders/part-gear-train.png)
 
 Driving gear on the motor shaft, driven gear on the lever axis. The mirrored station has its own driven gear. The gear ratio is the number the firmware's angle scaling depends on.
 

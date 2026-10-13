@@ -1,6 +1,6 @@
 # Rotation plate
 
-![Rotation plate, the rest of the station ghosted](../../renders/part-rotation-plate.png)
+![Rotation plate, the rest of the station ghosted](../renders/part-rotation-plate.png)
 
 Plate under the linear stage that rotates on the base plate to set the station's angle; the indicator and lock knob read and hold it.
 

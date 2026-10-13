@@ -47,7 +47,7 @@ def firmware_links(fw):
 def page(e, by_id):
     L = [f"# {e['name']}", ""]
     if e.get("render") and e["kind"] == "mechanical":
-        L += [f"![{e['name']}, the rest of the station ghosted](../../renders/part-{e['id']}.png)", ""]
+        L += [f"![{e['name']}, the rest of the station ghosted](../renders/part-{e['id']}.png)", ""]
     if e.get("description"):
         L += [e["description"].strip(), ""]
     rows = []
@@ -111,13 +111,13 @@ def main():
     station = ["# One joystick station", "",
                "The right station of the two-joystick assembly, which is the un-mirrored one;",
                "the left station is its mirror image and takes the left harness.", "",
-               "![One station](../renders/station-iso.png)", "",
+               "![One station](renders/station-iso.png)", "",
                "## Exploded", "",
                "Parts on the lever axis move along it away from the lever; the plates, the",
                "stage and the base move down. Order from the registry's `explode` fields.", "",
-               "![Exploded, 25 %](../renders/station-exploded-25.png)", "",
-               "![Exploded, 50 %](../renders/station-exploded-50.png)", "",
-               "![Exploded, 100 %](../renders/station-exploded-100.png)", "",
+               "![Exploded, 25 %](renders/station-exploded-25.png)", "",
+               "![Exploded, 50 %](renders/station-exploded-50.png)", "",
+               "![Exploded, 100 %](renders/station-exploded-100.png)", "",
                "## Parts", "", "| Part | Order along the lever axis | Order downward |", "| --- | ---: | ---: |"]
     for e in reg:
         ex = e.get("explode")

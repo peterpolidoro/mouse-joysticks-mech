@@ -1,6 +1,6 @@
 # Shaft couplers
 
-![Shaft couplers, the rest of the station ghosted](../../renders/part-shaft-couplers.png)
+![Shaft couplers, the rest of the station ghosted](../renders/part-shaft-couplers.png)
 
 Two couplers on the lever axis: one between the gear and the brake, one between the brake and the torque sensor.
 

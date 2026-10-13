@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
 """Clickable SVG overlays and callout legends from the hotspot files.
 
-    python3 atlas/overlay.py renders/ [--view rig-iso] [--link 'components/{id}.md']
+    python3 atlas/overlay.py docs/renders/ [--view rig-iso] [--link '../components/{id}/']
 
-For every renders/hotspots/<view>.json (or the one named), writes
-renders/<view>.svg: the PNG as the image, one numbered callout per registry
+For every docs/renders/hotspots/<view>.json (or the one named), writes
+docs/renders/<view>.svg: the PNG as the image, one numbered callout per registry
 entry in frame with a link to its page, and the legend as a Markdown table in
-renders/<view>.callouts.md. On a rig view the left station's parts are the
+docs/renders/<view>.callouts.md. The default link is the site's page for
+the part, relative to the SVG's place under docs/renders/. On a rig view the left station's parts are the
 mirror of the right's, so only the right station and the rig-level parts are
 numbered; a station or part view numbers what it shows.
 """
 import argparse, json, pathlib, sys
 
 
-def overlay(view_dir, view, link):
-    hs = json.load(open(view_dir / "hotspots" / f"{view}.json"))
-    W, H = hs["width"], hs["height"]
+def select_items(hs, view):
+    """The entries a view gets callouts for, in reading order: in frame, one per id,
+    and on a rig view only the right station and the rig-level parts."""
     rig_view = view.startswith("rig-")
     seen = set(); items = []
     for e in hs["entries"]:
@@ -27,6 +28,13 @@ def overlay(view_dir, view, link):
             continue
         seen.add(e["id"]); items.append(e)
     items.sort(key=lambda e: (e["box_px"][1], e["box_px"][0]))
+    return items
+
+
+def overlay(view_dir, view, link):
+    hs = json.load(open(view_dir / "hotspots" / f"{view}.json"))
+    W, H = hs["width"], hs["height"]
+    items = select_items(hs, view)
     r = max(9, round(min(W, H) * 0.016))
     lines = [f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 {W} {H}" width="{W}" height="{H}">',
              "<style>.hs rect{fill:transparent;stroke:transparent;stroke-width:2}.hs:hover rect{stroke:#d9480f;fill:rgba(217,72,15,.08)}"
@@ -47,7 +55,7 @@ def overlay(view_dir, view, link):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("renders"); ap.add_argument("--view"); ap.add_argument("--link", default="components/{id}.md")
+    ap.add_argument("renders"); ap.add_argument("--view"); ap.add_argument("--link", default="../components/{id}/")
     a = ap.parse_args()
     d = pathlib.Path(a.renders)
     views = [a.view] if a.view else sorted(p.stem for p in (d / "hotspots").glob("*.json"))

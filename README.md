@@ -8,13 +8,13 @@ geometry; this repository adds renders of it, a registry of every part and
 generated pages that say what each part is and which board circuit and
 firmware it meets.
 
-![The two-joystick assembly](renders/rig-iso.png)
+![The two-joystick assembly](docs/renders/rig-iso.png)
 
 | File | Format | Size | Use |
 | --- | --- | --- | --- |
 | `mouse-joysticks.stp` | STEP AP214 | 22.6 MB | Open in FreeCAD, Fusion, Inventor, SolidWorks or Onshape to measure, mate against or modify |
 | `mouse-joysticks.glb` | glTF 2.0 binary | 11.3 MB | Open in any glTF viewer or in Blender to look at the assembly |
-| `renders/` | PNG | | Renders of the assembly, one station, exploded views and every part in isolation, generated from the model ([how](atlas/README.md)) |
+| `docs/renders/` | PNG | | Renders of the assembly, one station, exploded views and every part in isolation, generated from the model ([how](atlas/README.md)); the same pages and pictures make [the atlas site](https://peterpolidoro.github.io/mouse-joysticks-mech/) |
 | `docs/` | Markdown | | [One station](docs/station.md), [the parts](docs/components/README.md), [the mechanical BOM](docs/bom-mechanical.md), [the model's frame and units](docs/model.md) |
 | `atlas/` | YAML, Python | | The part registry and the scripts that generate the renders and pages |
 
@@ -34,7 +34,7 @@ that slides on a linear stage and rotates on the base plate. The
 part number, datasheet, the board connector it reaches and the firmware
 that drives it.
 
-![One station, exploded](renders/station-exploded-100.png)
+![One station, exploded](docs/renders/station-exploded-100.png)
 
 ## How The Boards Relate To It
 
@@ -47,7 +47,7 @@ mounting holes and connector positions are in their generated documentation.
 The model predates the brake and torque sensor interfaces on the v1.0
 controller board and does not record how those parts mount.
 
-![Placement study: the two boards under the stations](renders/rig-with-boards-iso.png)
+![Placement study: the two boards under the stations](docs/renders/rig-with-boards-iso.png)
 
 The boards in this render stand where the 2026-09-21 placement study put
 them, as a study and not a fixture; the board models are the PCB

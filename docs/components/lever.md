@@ -1,6 +1,6 @@
 # Joystick lever
 
-![Joystick lever, the rest of the station ghosted](../../renders/part-lever.png)
+![Joystick lever, the rest of the station ghosted](../renders/part-lever.png)
 
 The lever the mouse holds. Rides on the lever axis at the front of the station; a pull moves it toward decreasing angle on both stations.
 

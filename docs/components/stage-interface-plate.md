@@ -1,6 +1,6 @@
 # Stage interface plate
 
-![Stage interface plate, the rest of the station ghosted](../../renders/part-stage-interface-plate.png)
+![Stage interface plate, the rest of the station ghosted](../renders/part-stage-interface-plate.png)
 
 Horizontal plate between the linear stage carriage and the station's frame.
 

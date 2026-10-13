@@ -1,6 +1,6 @@
 # Motor mount plate
 
-![Motor mount plate, the rest of the station ghosted](../../renders/part-motor-mount-plate.png)
+![Motor mount plate, the rest of the station ghosted](../renders/part-motor-mount-plate.png)
 
 Vertical plate at the front of the station carrying the motor and the front of the lever axis; mirrored on the left station.
 

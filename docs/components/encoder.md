@@ -1,6 +1,6 @@
 # Lever-axis encoder
 
-![Lever-axis encoder, the rest of the station ghosted](../../renders/part-encoder.png)
+![Lever-axis encoder, the rest of the station ghosted](../renders/part-encoder.png)
 
 Optical kit encoder. Its A and B channels reach the board's encoder input and are counted by the TMC5130A, not by the RP2040; the firmware reads the count over SPI.
 

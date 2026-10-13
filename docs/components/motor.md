@@ -1,6 +1,6 @@
 # Stepper motor
 
-![Stepper motor, the rest of the station ghosted](../../renders/part-motor.png)
+![Stepper motor, the rest of the station ghosted](../renders/part-motor.png)
 
 The motor that presents, parks and homes the lever through the gear pair. Rated 0.6 A per phase; the firmware runs it below that.
 

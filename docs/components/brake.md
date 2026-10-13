@@ -1,6 +1,6 @@
 # Magnetic particle brake
 
-![Magnetic particle brake, the rest of the station ghosted](../../renders/part-brake.png)
+![Magnetic particle brake, the rest of the station ghosted](../renders/part-brake.png)
 
 On the lever axis behind the gear. The board's current sink drives its coil from 0 to about 49 mA to set the resistance the mouse feels while the lever is released.
 

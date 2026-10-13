@@ -1,0 +1,67 @@
+# The atlas site: built by `pixi run site` or the Pages workflow from docs/.
+# The model files are not under docs/; the build copies them to site/model/.
+site_name: Mouse joystick rig atlas
+site_description: The two-joystick rig for a head-fixed mouse, part by part, with the boards and firmware that drive it.
+site_url: https://peterpolidoro.github.io/mouse-joysticks-mech/
+repo_url: https://github.com/peterpolidoro/mouse-joysticks-mech
+repo_name: peterpolidoro/mouse-joysticks-mech
+edit_uri: ""
+docs_dir: docs
+site_dir: site
+copyright: Model by Sam Jager; boards, firmware and documentation by Peter Polidoro. CC-BY-SA-4.0.
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Dark
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Light
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - tables
+  - admonition
+  - toc:
+      permalink: true
+
+extra_javascript:
+  - path: https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js
+    type: module
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - One station: station.md
+  - Components: components/README.md
+  - Boards: boards.md
+  - Wiring: wiring.md
+  - Operate: operate.md
+  - Mechanical BOM: bom-mechanical.md
+  - The model: model.md
+
+not_in_nav: |
+  components/*.md
+
+# The callout legends are fragments for the overlays, not pages.
+exclude_docs: |
+  renders/*.callouts.md

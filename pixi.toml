@@ -1,0 +1,23 @@
+# The scripts under atlas/ and the site build, on Linux, macOS and Windows.
+# Blender is not in here: render with `guix shell blender` (or any Blender 4.x)
+# as atlas/README.md says; everything else runs from this environment.
+[workspace]
+name = "mouse-joysticks-mech"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+
+[dependencies]
+python = ">=3.11,<3.14"
+pyyaml = ">=6"
+mkdocs = ">=1.6"
+mkdocs-material = ">=9.5,<10"
+
+[tasks]
+build = { cmd = "python atlas/build.py", description = "Resolve the registry against the model and write atlas/job.json" }
+check = { cmd = "python atlas/build.py --check && python atlas/bom.py --check", description = "Are the renders current and every part node covered?" }
+bom = { cmd = "python atlas/bom.py", description = "docs/bom-mechanical.md from the model through the registry" }
+pages = { cmd = "python atlas/pages.py && python atlas/site_pages.py", description = "The component, station and site pages from the registry" }
+overlay = { cmd = "python atlas/overlay.py docs/renders", description = "Clickable SVG overlays and callout legends from the hotspot files" }
+generate = { depends-on = ["bom", "pages", "overlay"], description = "Everything generated except the renders" }
+site = { cmd = "mkdocs build && mkdir -p site/model && cp mouse-joysticks.glb atlas/boards/*.glb site/model/", depends-on = ["generate"], description = "Build the atlas site into site/" }
+serve = { cmd = "mkdocs serve", description = "Serve the site locally (the model files are served only after `pixi run site`)" }

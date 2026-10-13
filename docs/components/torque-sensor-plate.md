@@ -1,6 +1,6 @@
 # Torque sensor plate
 
-![Torque sensor plate, the rest of the station ghosted](../../renders/part-torque-sensor-plate.png)
+![Torque sensor plate, the rest of the station ghosted](../renders/part-torque-sensor-plate.png)
 
 Vertical plate at the rear of the station carrying the torque sensor.
 

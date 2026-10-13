@@ -32,7 +32,7 @@ Under each station: the purchased parts by vendor part number (Lin
 Engineering motor, Placid brake, Transducer Techniques torque sensor, US
 Digital encoder, Omron switch, Misumi stage, McMaster and ServoCity
 hardware) and the custom plates, gears, couplers and the lever. The
-[registry](../atlas/components.yaml) groups them and the
+[registry](https://github.com/peterpolidoro/mouse-joysticks-mech/blob/main/atlas/components.yaml) groups them and the
 [mechanical BOM](bom-mechanical.md) counts them.
 
 ## What the model does not record

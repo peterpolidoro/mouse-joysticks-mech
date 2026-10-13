@@ -5,7 +5,7 @@ Reads atlas/components.yaml and atlas/scene.yaml, resolves every registry
 entry's `gltf_nodes` globs against the node names in the glTF (an unmatched
 pattern is an error), expands the per-part view, and writes atlas/job.json,
 which Blender's Python reads without needing PyYAML. Also writes
-renders/manifest.json with the SHA-256 of every input so `--check` can say
+docs/renders/manifest.json with the SHA-256 of every input so `--check` can say
 whether the committed renders are current.
 
     python3 atlas/build.py                 # write atlas/job.json
@@ -103,9 +103,9 @@ def main():
     gltf = gltf_json(ROOT / scene["model"])
     job = build(scene, registry, gltf)
     if args.check:
-        man = ROOT / "renders/manifest.json"
+        man = ROOT / "docs/renders/manifest.json"
         if not man.exists():
-            print("renders/manifest.json missing"); return 1
+            print("docs/renders/manifest.json missing"); return 1
         old = json.load(open(man)).get("inputs", {})
         new = inputs(scene)
         stale = [k for k in new if old.get(k) != new[k]] + [k for k in old if k not in new]

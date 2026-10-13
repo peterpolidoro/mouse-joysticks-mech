@@ -1,6 +1,6 @@
 # Limit switch
 
-![Limit switch, the rest of the station ghosted](../../renders/part-limit-switch.png)
+![Limit switch, the rest of the station ghosted](../renders/part-limit-switch.png)
 
 Subminiature basic switch with a lever actuator at the positive end of travel. The firmware homes against it and uses it as the hardware stop for negative motion through the driver's reference input.
 

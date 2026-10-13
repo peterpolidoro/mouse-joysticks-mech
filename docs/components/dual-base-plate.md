@@ -1,6 +1,6 @@
 # Dual base plate
 
-![Dual base plate, the rest of the station ghosted](../../renders/part-dual-base-plate.png)
+![Dual base plate, the rest of the station ghosted](../renders/part-dual-base-plate.png)
 
 The common base both stations rotate and slide on; 349 by 76 mm.
 

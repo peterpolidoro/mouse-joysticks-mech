@@ -1,6 +1,6 @@
 # Rotation indicator and lock
 
-![Rotation indicator and lock, the rest of the station ghosted](../../renders/part-rotation-lock.png)
+![Rotation indicator and lock, the rest of the station ghosted](../renders/part-rotation-lock.png)
 
 The pointer, the pivot shoulder screw and the knob that locks the rotation plate.
 

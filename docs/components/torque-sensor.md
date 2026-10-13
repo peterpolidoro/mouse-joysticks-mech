@@ -1,6 +1,6 @@
 # Reaction torque sensor
 
-![Reaction torque sensor, the rest of the station ghosted](../../renders/part-torque-sensor.png)
+![Reaction torque sensor, the rest of the station ghosted](../renders/part-torque-sensor.png)
 
 350 ohm bridge, 1.5 mV/V, 5 in-oz, at the rear of the lever axis. The board excites it, amplifies it, samples it at 1 kHz and puts a copy on the torque BNC. The left station reads a pull negative where the right reads positive.
 
