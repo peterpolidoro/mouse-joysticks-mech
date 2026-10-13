@@ -7,42 +7,58 @@ or in the generated pages is edited by hand.
 | File | What |
 | --- | --- |
 | `components.yaml` | the component registry: every part, board, cable and external endpoint of the rig, with its glTF nodes, vendor part number, datasheet, board connector, schematic block, firmware files and protocol verbs. The header explains the fields. |
-| `scene.yaml` | the scene: units and frame, which glTF root is which station, where the boards stand (a placement study, not a fixture), the exploded-view step, the render settings and the camera of every view |
+| `scene.yaml` | the scene: units and frame, which glTF root is which station, where the boards stand (a placement study, not a fixture), the exploded-view step, the studio lighting, the palette of finishes (`looks`) and the camera of every view |
 | `build.py` | reads both files and the glTF, resolves every registry pattern to node names (an unmatched pattern is an error), expands the per-part view and writes `job.json` for Blender; `--check` compares `docs/renders/manifest.json` with the inputs' hashes |
-| `render.py` | runs inside Blender: imports the models, and per view sets the subject, ghosting, explode offsets and camera, renders a PNG and writes `docs/renders/hotspots/<view>.json` (projected pixel boxes and world centres of every registry entry) |
+| `render.py` | runs inside Blender (the `bpy` wheel or a Blender binary): imports the models, gives every part its finish, lights the studio, and per view sets the subject, the isolation, the explode offsets, the floor and the camera, renders a PNG and writes `docs/renders/hotspots/<view>.json` (projected pixel boxes and world centres of every registry entry) |
 | `bom.py` | the mechanical bill of materials counted from the glTF through the registry, to `docs/bom-mechanical.md` and `.csv`; `--check` lists part nodes no entry covers |
 | `boards/` | the two boards' glTF exports from their KiCad layouts, with `PROVENANCE.md` |
 
 ## Regenerating
 
-Blender 4.5 and Python 3 with PyYAML; here through Guix:
+Everything runs through pixi. The default environment holds the generators
+and mkdocs; the `render` environment adds Blender 4.5 itself as the official
+`bpy` wheel from PyPI, with Cycles and OpenImageDenoise, so no Blender has to
+be installed (the Guix `blender` package renders too, but it lacks the
+denoiser and its output is grainy).
 
 ```sh
-python3 atlas/build.py                     # atlas/job.json
-guix shell blender -- blender -b --python atlas/render.py -- atlas/job.json docs/renders/
-python3 atlas/bom.py                       # docs/bom-mechanical.md
-python3 atlas/pages.py && python3 atlas/site_pages.py   # docs/components/, station, index, boards, wiring, operate
-python3 atlas/overlay.py docs/renders      # clickable SVG per view and its callout legend
-mkdocs build && cp mouse-joysticks.glb atlas/boards/*.glb site/model/   # the site, or `pixi run site`
-python3 atlas/build.py --check             # are the committed renders current?
+pixi run render                            # every view into docs/renders, about 15 minutes
+pixi run preview rig-iso,part-brake        # low-quality versions of named views into tmp/preview
+pixi run generate                          # BOM, pages, overlays
+pixi run site                              # the site into site/
+pixi run check                             # are the renders current, is every part node covered?
 ```
 
-A subset, at low quality, while adjusting a camera:
+A solid view takes ten to thirty seconds at the committed quality and an
+isolation view about the same: nothing is transparent any more.
+`docs/renders/manifest.json` records the SHA-256 of every input, and
+`check` reports stale renders without rendering, so the renders regenerate
+only when the model, the registry, the scene or the scripts change.
 
-```sh
-guix shell blender -- blender -b --python atlas/render.py -- atlas/job.json /tmp/preview --views rig-iso,part-brake --preview
-```
+## The look
 
-Cycles on the CPU renders without a display. At preview quality a view takes
-seconds. At the committed quality a solid view takes ten to thirty seconds
-and a ghosted part view one to four minutes, because the ghost material is
-transparent and Cycles follows up to 64 transparent bounces through the
-station; the full set of 24 views is about 40 minutes on an eight-core
-machine. Run one Blender at a time: Guix wraps the binary in a shell script,
-so `pkill blender` stops the wrapper and not the render. `docs/renders/manifest.json`
-records the SHA-256 of every input, and `build.py --check` reports stale
-renders without rendering, so the renders regenerate only when the model,
-the registry, the scene or the scripts change.
+Finishes are not the model's. Inventor's appearance names put a white
+"Steel" on the black gears, "Walnut" on the limit switch and a blue plate
+where the real one is machined aluminium, so every registry entry carries a
+`look` from the palette in `scene.yaml`, read off photographs of the real
+stations (2026-10-13): aluminium plates, rods and end caps; black motor,
+brake and torque-sensor bodies; black gears; stainless lever and screws.
+`looks_by_material` and `looks_by_node` refine a part with several finishes
+(the brake's aluminium end caps on its black housing, the motor's shaft).
+Anything the registry does not name falls back to `material_looks`, a map
+from appearance name to look.
+
+The studio is three area lights placed on the mechanism's bounding sphere, a
+neutral world for ambient light and reflections, and a matte floor set just
+under the lowest visible part of each view, so every picture has contact
+shadows. AgX tone mapping with the medium-high-contrast look, adaptive
+sampling to 256 samples, OpenImageDenoise with albedo and normal passes.
+
+An isolation view (`others: isolate`) keeps the subject in its finish, turns
+every other visible part into an unlit flat grey silhouette, and draws
+Freestyle outlines: dark and thicker around the subject, thin and light
+around the context. That reads for a black gear and an aluminium plate
+alike, and costs nothing in noise or time.
 
 ## The site
 
@@ -66,14 +82,12 @@ files read on GitHub and on the site.
 | `../pixi.toml`, `../pixi.lock` | the Python environment for every script here and for mkdocs; Blender stays outside it |
 | `../.github/workflows/pages.yml` | the Pages deployment |
 
-## Known limits of the first render set (2026-10-13)
+## Known limits (2026-10-13)
 
-- In the part views a light-coloured subject (the plates, the base plate,
-  the couplers) has little contrast against the light backdrop and the
-  ghosted context. A Freestyle outline around the subject, or a darker
-  tint for the ghost, would fix it; `render.py` has neither yet.
-- Large flat faces show a faint mottling from the denoiser at 96 samples.
-  More samples cost render time linearly.
+- The finishes are read off two photographs; parts not visible in them
+  (the linear stage, the base plate, the couplers' exact finish, the
+  ServoCity hardware) are assumed aluminium. Correct the registry's `look`
+  fields and re-render.
 - The boards' FFC sockets (`J1301`, `J501`) have no library 3D model and
   are absent from the board glTFs.
 

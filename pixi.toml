@@ -1,10 +1,16 @@
 # The scripts under atlas/ and the site build, on Linux, macOS and Windows.
-# Blender is not in here: render with `guix shell blender` (or any Blender 4.x)
-# as atlas/README.md says; everything else runs from this environment.
+# The default environment runs the generators and mkdocs. The `render`
+# environment adds Blender itself as the official `bpy` wheel from PyPI
+# (Blender 4.5 as a Python module, with Cycles and OpenImageDenoise), so the
+# renders need no separately installed Blender: `pixi run render`.
 [workspace]
 name = "mouse-joysticks-mech"
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+# pixi fetches a conda-to-PyPI name map before solving PyPI dependencies; the
+# empty local map skips that download, which fails on some networks, and is
+# correct here because nothing in the render environment is on both sides.
+conda-pypi-map = { "conda-forge" = "atlas/empty-conda-pypi-map.json" }
 
 [dependencies]
 python = ">=3.11,<3.14"
@@ -21,3 +27,17 @@ overlay = { cmd = "python atlas/overlay.py docs/renders", description = "Clickab
 generate = { depends-on = ["bom", "pages", "overlay"], description = "Everything generated except the renders" }
 site = { cmd = "mkdocs build && mkdir -p site/model && cp mouse-joysticks.glb atlas/boards/*.glb site/model/", depends-on = ["generate"], description = "Build the atlas site into site/" }
 serve = { cmd = "mkdocs serve", description = "Serve the site locally (the model files are served only after `pixi run site`)" }
+
+[feature.render.dependencies]
+python = "3.11.*"          # the bpy wheels are built for 3.11
+pyyaml = ">=6"
+
+[feature.render.pypi-dependencies]
+bpy = ">=4.5,<4.6"
+
+[feature.render.tasks]
+render = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json docs/renders", description = "Render every view into docs/renders (about 15 minutes)" }
+preview = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json tmp/preview --preview --views", description = "Low-quality renders of the named views into tmp/preview, e.g. `pixi run preview rig-iso,part-brake`" }
+
+[environments]
+render = { features = ["render"], no-default-feature = true }

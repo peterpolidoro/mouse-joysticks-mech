@@ -28,6 +28,10 @@
 #               mouse-joystick-firm; the circuit-to-code map reads these
 #   explode     axis and order for the exploded view (station frame, section 6
 #               of the documentation plan); omitted = stays in place
+#   look        finish from scene.yaml `looks`, read off the photos of the real
+#               parts (2026-10-13), not the model's appearance names;
+#               looks_by_material / looks_by_node override it for a part with
+#               several finishes (brake end caps, the motor shaft)
 #   render      true = an isolated render and a component page
 #   bom         true = a row in the mechanical BOM (instances counted from the glTF)
 #   confirm     open questions for Sam Jager or the bench, printed on the page
@@ -40,6 +44,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["MCL LEVER:*"]
+  look: stainless
   vendor: Janelia (custom)
   description: >-
     The lever the mouse holds. Rides on the lever axis at the front of the
@@ -54,6 +59,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["Spur Gears:*", "DRIVEN SPUR GEAR MIR:*"]
+  look: black-plastic
   vendor: Janelia (custom)
   description: >-
     Driving gear on the motor shaft, driven gear on the lever axis. The
@@ -72,6 +78,8 @@
   kind: mechanical
   station: both
   gltf_nodes: ["LIN ENGINEERING 208-13-01D:*"]
+  look: black-anodized
+  looks_by_node: {"Solid1": stainless}
   vendor: Lin Engineering
   part_number: 208-13-01D
   datasheet: mouse-joystick-pcb/docs/datasheets/motor.pdf
@@ -94,6 +102,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["US DIGITAL E4T-200-157-S-H-M-B:*"]
+  look: black-plastic
   vendor: US Digital
   part_number: E4T-200-157-S-H-M-B
   datasheet: mouse-joystick-pcb/docs/datasheets/encoder.pdf
@@ -119,6 +128,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["D2F_01FL:*"]
+  look: black-plastic
   vendor: Omron
   part_number: D2F-01FL
   description: >-
@@ -141,6 +151,8 @@
   kind: mechanical
   station: both
   gltf_nodes: ["PLACID INDUSTRIES B5Z-1R:*"]
+  look: black-anodized
+  looks_by_material: {AluminumPolished: aluminium, StainlessBrushed: stainless}
   vendor: Placid Industries
   part_number: B5Z-1R
   datasheet: mouse-joystick-pcb/docs/datasheets/brake.pdf
@@ -164,6 +176,8 @@
   kind: mechanical
   station: both
   gltf_nodes: ["TransducerTechniquesRTS5:*"]
+  look: black-anodized
+  looks_by_material: {AluminumPolished: aluminium, Default: aluminium, Metal2400FHot: stainless}
   vendor: Transducer Techniques
   part_number: RTS-5
   datasheet: mouse-joystick-pcb/docs/datasheets/torque-sensor-specs.png
@@ -188,6 +202,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["CouplerBrakeSide:*", "Coupler-SensorSide:*"]
+  look: aluminium
   vendor: Janelia (custom)
   description: >-
     Two couplers on the lever axis: one between the gear and the brake, one
@@ -201,6 +216,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["MCMASTER 57155K316_Ball Bearing:*", "MCMASTER 1677K313_Ultra-Low-Friction Oil-Embedded Sleeve Bearing:*"]
+  look: stainless
   vendor: McMaster-Carr
   part_number: 57155K316, 1677K313
   description: A ball bearing and a sleeve bearing carrying the lever axis.
@@ -212,6 +228,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["MOTOR MOUNT PLATE:*", "MOTOR MOUNT PLATE_MIR:*"]
+  look: aluminium
   vendor: Janelia (custom)
   description: >-
     Vertical plate at the front of the station carrying the motor and the
@@ -225,6 +242,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["TORQUE SENSOR PLATE:*"]
+  look: aluminium
   vendor: Janelia (custom)
   description: Vertical plate at the rear of the station carrying the torque sensor.
   explode: {axis: y, order: 2}
@@ -236,6 +254,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["MCMASTER 93330A541_Female Threaded Round Standoff:*", "MCMASTER 92510A421_Aluminum Unthreaded Spacer:*", "MCMASTER 91125A431_Female Threaded Round Standoff:*"]
+  look: aluminium
   vendor: McMaster-Carr
   part_number: 93330A541, 92510A421, 91125A431
   description: Standoffs and spacers tying the two vertical plates to the stage interface plate.
@@ -247,6 +266,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["STAGE INTERFACE PLATE:*"]
+  look: aluminium
   vendor: Janelia (custom)
   description: Horizontal plate between the linear stage carriage and the station's frame.
   explode: {axis: y, order: 3}
@@ -258,6 +278,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["MISUMI XSLC60:*"]
+  look: aluminium
   vendor: Misumi
   part_number: XSLC60
   description: >-
@@ -273,6 +294,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["ROTATION PLATE:*"]
+  look: aluminium
   vendor: Janelia (custom)
   description: >-
     Plate under the linear stage that rotates on the base plate to set the
@@ -286,6 +308,8 @@
   kind: mechanical
   station: both
   gltf_nodes: ["ROTATION INDICATOR:*", "MCMASTER 94052A133_Screw-Head Mount Knob:*", "MCMASTER 92196A537_18-8 Stainless Steel Socket Head Screw:*", "MCMASTER 90298A149_18-8 Stainless Steel Shoulder Screw:*"]
+  look: black-plastic
+  looks_by_node: {"MCMASTER 90298A149*": stainless, "MCMASTER 92196A537*": stainless, "ROTATION INDICATOR*": black-anodized}
   vendor: McMaster-Carr, Janelia (custom)
   part_number: 94052A133, 92196A537, 90298A149
   description: The pointer, the pivot shoulder screw and the knob that locks the rotation plate.
@@ -298,6 +322,7 @@
   kind: mechanical
   station: rig
   gltf_nodes: ["DUAL BASE PLATE:*"]
+  look: aluminium
   vendor: Janelia (custom)
   description: The common base both stations rotate and slide on; 349 by 76 mm.
   explode: {axis: y, order: 6}
@@ -309,6 +334,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["SERVO CITY 1314-0016-0004:*", "SERVO CITY 1314-0016-0125:*", "1203-0001-0001:*"]
+  look: aluminium
   vendor: ServoCity (goBILDA)
   part_number: 1314-0016-0004, 1314-0016-0125, 1203-0001-0001
   description: Hubs and pattern hardware on the lever axis and gears.
@@ -321,6 +347,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["MCMASTER 92196A112_*", "MCMASTER 91292A117_*", "92196A144_*", "92196A066_*", "92196A022_*", "90730A005_*"]
+  look: stainless
   vendor: McMaster-Carr
   part_number: 92196A112, 91292A117, 92196A144, 92196A066, 92196A022, 90730A005
   description: Socket head screws and a hex nut.

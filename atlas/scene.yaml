@@ -53,21 +53,66 @@ explode:
 
 render:
   engine: CYCLES
-  samples: 96
-  preview_samples: 16
+  samples: 256                 # adaptive: most pixels stop far earlier
+  preview_samples: 64
+  adaptive_threshold: 0.01
   long_side_px: 1600
   hero_long_side_px: 2400
-  preview_long_side_px: 640
-  film_transparent: false      # an opaque light backdrop reads on GitHub's light and dark themes alike
-  background: [0.93, 0.94, 0.96]
-  view_transform: Filmic       # keeps the white plates from clipping
-  ghost_alpha: 0.12
-  sun: {direction: [-0.6, 1.0, -0.4], strength: 2.0, angle_deg: 8}
-  world_strength: 1.0
-  # Inventor's polished metals arrive with roughness 0 and read as mirrors of the
-  # world; matte dielectrics and flat shading give an illustration look that shows
-  # every face. Colours are kept.
-  materials: {roughness_min: 0.5, metallic_max: 0.0, flat_shading: true}
+  preview_long_side_px: 800
+  film_transparent: false
+  view_transform: AgX
+  look: "AgX - Medium High Contrast"
+  exposure: 0.0
+  # A studio: three area lights placed relative to the subject's bounding
+  # sphere (radius R), a neutral world for ambient fill and reflections, and a
+  # matte floor just under the lowest visible part so every view has contact
+  # shadows. Powers are for R = 0.2 m and scale with R squared.
+  world: {color: [0.42, 0.43, 0.45], strength: 0.45}
+  floor: {color: [0.46, 0.47, 0.49], roughness: 0.9, size_factor: 40}
+  studio:
+    key:  {direction: [-1.0, 1.3, 0.7], distance: 3.0, size: 2.0, watts: 26}
+    fill: {direction: [1.2, 0.6, 0.9], distance: 3.5, size: 3.0, watts: 9}
+    rim:  {direction: [0.4, 1.1, -1.3], distance: 3.0, size: 1.5, watts: 14}
+  # Isolation views: the subject keeps its looks, everything else becomes an
+  # unlit flat grey silhouette, and Freestyle draws outlines: a dark, thicker
+  # line around the subject, a thin light one around the context.
+  isolate:
+    context_color: [0.72, 0.73, 0.75]
+    subject_line: {color: [0.08, 0.08, 0.1], thickness: 2.4}
+    context_line: {color: [0.40, 0.41, 0.44], thickness: 0.7}
+    crease_angle_deg: 110
+  # Every mesh gets a "look" from the palette below: the registry entry's
+  # `look` (and its `looks_by_material` / `looks_by_node` overrides for parts
+  # with several finishes), else the Inventor appearance name through
+  # `material_looks`. The board models keep their own KiCad materials.
+  looks:
+    aluminium:      {base: [0.70, 0.71, 0.73], metallic: 1.0, roughness: 0.38}
+    stainless:      {base: [0.62, 0.62, 0.64], metallic: 1.0, roughness: 0.26}
+    black-anodized: {base: [0.035, 0.035, 0.040], metallic: 0.6, roughness: 0.42}
+    black-plastic:  {base: [0.020, 0.020, 0.022], metallic: 0.0, roughness: 0.48}
+    grey-plastic:   {base: [0.30, 0.31, 0.33], metallic: 0.0, roughness: 0.55}
+    blue-anodized:  {base: [0.05, 0.12, 0.45], metallic: 0.5, roughness: 0.40}
+    brass:          {base: [0.78, 0.56, 0.20], metallic: 1.0, roughness: 0.35}
+    label-white:    {base: [0.88, 0.88, 0.86], metallic: 0.0, roughness: 0.75}
+  material_looks:               # Inventor appearance -> look, the fallback
+    PolishedBrushedVersion11: aluminium
+    AluminumPolished: aluminium
+    Default: aluminium
+    Steel: aluminium
+    M196196196: aluminium
+    SmoothNavy: aluminium       # the motor mount plate is machined aluminium in the photos
+    StainlessBrushed: stainless
+    Metal2400FHot: stainless
+    SmoothBlack: black-anodized
+    BlackAnodize: black-anodized
+    SmoothMediumGray: black-anodized
+    M646464: black-anodized
+    Gray: black-anodized
+    Walnut: grey-plastic
+    M255255255: grey-plastic
+    M221232255: grey-plastic
+    M165158150: grey-plastic
+    BrassSatin: brass
 
 # Camera `direction` is the vector from the subject's centre to the camera;
 # `fill` is the fraction of the frame the subject's projected bounds occupy.
@@ -110,6 +155,6 @@ views:
   - id: part-{id}
     per_part: true
     subject: entry:right
-    others: ghost
+    others: isolate
     hide: station:left
     camera: {kind: perspective, direction: [-1.0, 0.7, 0.9], fill: 0.45, aspect: [4, 3]}

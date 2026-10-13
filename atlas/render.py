@@ -1,6 +1,12 @@
 """Render the atlas views with Blender, headless.
 
-    blender -b --python atlas/render.py -- atlas/job.json renders/ [--views a,b] [--preview]
+Look: every mechanism part gets a finish from scene.yaml's palette through the
+registry (read off photographs of the real parts), a three-light studio with a
+matte floor, AgX tone mapping; isolation views draw the subject in its finish
+with a dark outline over unlit grey silhouettes of the rest (Freestyle).
+
+    blender -b --python atlas/render.py -- atlas/job.json docs/renders/ [--views a,b] [--preview]
+    python atlas/render.py atlas/job.json docs/renders/ [--views a,b] [--preview]   # with the bpy wheel
 
 Reads the job atlas/build.py wrote (no PyYAML inside Blender), imports the
 mechanism and the board models, and for every view sets the subject, the
@@ -130,70 +136,189 @@ class Scene:
                 log(f"board {bid} at {inst['station']}: {len(tops)} top nodes, size {[round(v, 3) for v in (mx - mn)]}")
         bpy.context.view_layer.update()
         self.all_objs = [o for o in bpy.data.objects if o.type == "MESH"]
-        self.orig_mats = {o: [s.material for s in o.material_slots] for o in self.all_objs}
         self.orig_matrix = {o: o.matrix_world.copy() for o in bpy.data.objects}
-        self.ghost = self.make_ghost(job["render"].get("ghost_alpha", 0.07))
-        self.normalise_materials(job["render"].get("materials", {}))
+        self.looks = {}
+        self.apply_looks(job["render"])
         self.setup_render()
+        self.setup_studio()
+        self.setup_isolation()
 
-    def normalise_materials(self, spec):
-        """Inventor appearances arrive as PBR; polished metals have roughness 0 and read
-        as mirrors of the white world. Floor the roughness and cap the metallic so every
-        surface shows its form; colours are kept."""
-        rmin = spec.get("roughness_min", 0.4); mmax = spec.get("metallic_max", 0.5)
-        n = 0
-        for m in bpy.data.materials:
-            if m is self.ghost or not m.use_nodes:
-                continue
-            for node in m.node_tree.nodes:
-                if node.type == "BSDF_PRINCIPLED":
-                    r = node.inputs["Roughness"]; k = node.inputs["Metallic"]
-                    if not r.is_linked and r.default_value < rmin:
-                        r.default_value = rmin; n += 1
-                    if not k.is_linked and k.default_value > mmax:
-                        k.default_value = mmax
-        log(f"materials: {len(bpy.data.materials)} total, {n} roughness floored at {rmin}")
-        if spec.get("flat_shading"):
-            for o in self.all_objs:
-                for p in o.data.polygons:
-                    p.use_smooth = False
-            log("flat shading on every mesh")
+    # ------------------------------------------------------------ materials
 
-    def make_ghost(self, alpha):
-        m = bpy.data.materials.new("atlas_ghost"); m.use_nodes = True
+    def look_material(self, name):
+        """One Blender material per look, made on first use."""
+        if name in self.looks:
+            return self.looks[name]
+        spec = self.job["render"]["looks"][name]
+        m = bpy.data.materials.new(f"look:{name}"); m.use_nodes = True
         bsdf = m.node_tree.nodes["Principled BSDF"]
-        bsdf.inputs["Base Color"].default_value = (0.55, 0.60, 0.68, 1)
-        bsdf.inputs["Alpha"].default_value = alpha
-        bsdf.inputs["Roughness"].default_value = 0.6
-        try:
-            m.blend_method = "BLEND"
-        except Exception:
-            pass
+        b = spec["base"]
+        bsdf.inputs["Base Color"].default_value = (b[0], b[1], b[2], 1)
+        bsdf.inputs["Metallic"].default_value = spec.get("metallic", 0.0)
+        bsdf.inputs["Roughness"].default_value = spec.get("roughness", 0.5)
+        self.looks[name] = m
         return m
+
+    def apply_looks(self, r):
+        """Give every mechanism mesh a look: the registry entry's, with its
+        per-material and per-node overrides, else the Inventor appearance's
+        fallback. The board models keep their own materials."""
+        by_mat = r.get("material_looks", {})
+        entry_of = {}
+        for e in self.job["entries"]:
+            for t in self.entry_objs.get(e["id"], []):
+                for o in meshes_under([t]):
+                    entry_of[o] = (e, t)
+        n_entry = n_fallback = 0
+        for o in self.mech:
+            if o.type != "MESH":
+                continue
+            e, top = entry_of.get(o, (None, None))
+            for slot in o.material_slots:
+                orig = slot.material.name if slot.material else ""
+                orig = SUFFIX.sub("", orig)
+                look = None
+                if e:
+                    look = e.get("look")
+                    for pat, lk in (e.get("looks_by_node") or {}).items():
+                        if any(fnmatch.fnmatchcase(base(a.name), pat) for a in ancestors(o)):
+                            look = lk
+                    look = (e.get("looks_by_material") or {}).get(orig, look)
+                if look:
+                    n_entry += 1
+                else:
+                    look = by_mat.get(orig, "grey-plastic"); n_fallback += 1
+                slot.material = self.look_material(look)
+            if not o.material_slots:
+                o.data.materials.append(self.look_material((e or {}).get("look") or "grey-plastic"))
+        # the boards: KiCad's materials, with only the mirror finishes tamed
+        for o in self.board_objs:
+            for slot in o.material_slots:
+                m = slot.material
+                if m and m.use_nodes:
+                    for node in m.node_tree.nodes:
+                        if node.type == "BSDF_PRINCIPLED" and not node.inputs["Roughness"].is_linked:
+                            node.inputs["Roughness"].default_value = max(node.inputs["Roughness"].default_value, 0.3)
+        self.orig_mats = {o: [sl.material for sl in o.material_slots] for o in self.all_objs}
+        log(f"looks: {n_entry} slots from the registry, {n_fallback} from the appearance fallback, {len(self.looks)} looks")
+        self.context_mat = bpy.data.materials.new("atlas_context"); self.context_mat.use_nodes = True
+        nt = self.context_mat.node_tree
+        for node in list(nt.nodes):
+            if node.type != "OUTPUT_MATERIAL":
+                nt.nodes.remove(node)
+        em = nt.nodes.new("ShaderNodeEmission")
+        c = r.get("isolate", {}).get("context_color", [0.72, 0.73, 0.75])
+        em.inputs["Color"].default_value = (c[0], c[1], c[2], 1); em.inputs["Strength"].default_value = 1.0
+        nt.links.new(em.outputs[0], nt.nodes["Material Output"].inputs["Surface"])
+
+    # --------------------------------------------------------------- studio
 
     def setup_render(self):
         r = self.job["render"]; scn = bpy.context.scene
         scn.render.engine = r.get("engine", "CYCLES")
         scn.cycles.device = "CPU"
-        scn.cycles.use_denoising = True
-        scn.cycles.transparent_max_bounces = 64
-        scn.render.film_transparent = r.get("film_transparent", True)
+        scn.cycles.use_adaptive_sampling = True
+        scn.cycles.adaptive_threshold = r.get("adaptive_threshold", 0.01)
+        # The denoiser enum reads as empty in background mode even when the
+        # build has OpenImageDenoise, so try to set it and believe the result.
+        try:
+            scn.cycles.denoiser = "OPENIMAGEDENOISE"
+            scn.cycles.use_denoising = True
+            scn.cycles.denoising_input_passes = "RGB_ALBEDO_NORMAL"
+            scn.cycles.denoising_prefilter = "ACCURATE"
+            log("denoiser: OpenImageDenoise")
+        except Exception:
+            scn.cycles.use_denoising = False
+            log("WARNING: this Blender build has no denoiser (the Guix package lacks OpenImageDenoise); "
+                "renders will be grainy. Use `pixi run render`, whose Blender is the official wheel.")
+        scn.render.film_transparent = r.get("film_transparent", False)
         scn.render.image_settings.file_format = "PNG"
-        scn.render.image_settings.color_mode = "RGBA"
-        scn.view_settings.view_transform = r.get("view_transform", "Standard")
-        scn.view_settings.look = "None"
+        scn.render.image_settings.color_mode = "RGBA" if scn.render.film_transparent else "RGB"
+        scn.view_settings.view_transform = r.get("view_transform", "AgX")
+        try:
+            scn.view_settings.look = r.get("look", "None")
+        except Exception as ex:
+            log(f"look: {ex}"); scn.view_settings.look = "None"
+        scn.view_settings.exposure = r.get("exposure", 0.0)
         world = bpy.data.worlds.new("atlas"); world.use_nodes = True
         bg = world.node_tree.nodes["Background"]
-        col = r.get("background", [1, 1, 1])
-        bg.inputs[0].default_value = (col[0], col[1], col[2], 1); bg.inputs[1].default_value = r.get("world_strength", 1.0)
+        w = r.get("world", {}); col = w.get("color", [0.45, 0.45, 0.47])
+        bg.inputs[0].default_value = (col[0], col[1], col[2], 1); bg.inputs[1].default_value = w.get("strength", 0.6)
         scn.world = world
-        sun = r.get("sun", {})
-        ld = bpy.data.lights.new("sun", type="SUN"); ld.energy = sun.get("strength", 2.5)
-        ld.angle = math.radians(sun.get("angle_deg", 8))
-        lo = bpy.data.objects.new("sun", ld); scn.collection.objects.link(lo)
-        lo.rotation_euler = G(sun.get("direction", [-0.6, 1.0, -0.4])).normalized().to_track_quat("Z", "Y").to_euler()
         cd = bpy.data.cameras.new("cam"); cd.clip_start = 0.001; cd.clip_end = 100
         self.cam = bpy.data.objects.new("cam", cd); scn.collection.objects.link(self.cam); scn.camera = self.cam
+
+    def setup_studio(self):
+        """Three area lights around the whole mechanism; the floor is placed per view."""
+        r = self.job["render"]; scn = bpy.context.scene
+        mn, mx = world_aabb([o for o in self.mech if o.type == "MESH"])
+        ctr = (mn + mx) / 2; R = (mx - mn).length / 2
+        self.scene_centre, self.scene_radius = ctr, R
+        scale = (R / 0.2) ** 2
+        self.lights = []
+        for name, spec in r.get("studio", {}).items():
+            ld = bpy.data.lights.new(f"light:{name}", type="AREA")
+            ld.shape = "SQUARE"; ld.size = spec["size"] * R; ld.energy = spec["watts"] * scale
+            lo = bpy.data.objects.new(f"light:{name}", ld); scn.collection.objects.link(lo)
+            d = G(spec["direction"]).normalized()
+            lo.location = ctr + d * spec["distance"] * R
+            lo.rotation_euler = d.to_track_quat("Z", "Y").to_euler()
+            self.lights.append(lo)
+        f = r.get("floor", {})
+        fm = bpy.data.materials.new("atlas_floor"); fm.use_nodes = True
+        bsdf = fm.node_tree.nodes["Principled BSDF"]
+        c = f.get("color", [0.46, 0.47, 0.49])
+        bsdf.inputs["Base Color"].default_value = (c[0], c[1], c[2], 1)
+        bsdf.inputs["Roughness"].default_value = f.get("roughness", 0.9)
+        bsdf.inputs["Metallic"].default_value = 0.0
+        me = bpy.data.meshes.new("floor"); size = f.get("size_factor", 40) * R
+        me.from_pydata([(-size, -size, 0), (size, -size, 0), (size, size, 0), (-size, size, 0)], [], [(0, 1, 2, 3)])
+        me.materials.append(fm)
+        self.floor = bpy.data.objects.new("floor", me); scn.collection.objects.link(self.floor)
+        log(f"studio: R={R:.3f} m, {len(self.lights)} lights, floor {size:.1f} m")
+
+    def setup_isolation(self):
+        """Collections Freestyle selects by, and the two line sets."""
+        scn = bpy.context.scene; r = self.job["render"].get("isolate", {})
+        self.coll_subject = bpy.data.collections.new("atlas_subject"); scn.collection.children.link(self.coll_subject)
+        self.coll_context = bpy.data.collections.new("atlas_context"); scn.collection.children.link(self.coll_context)
+        scn.render.line_thickness_mode = "ABSOLUTE"
+        fs = bpy.context.view_layer.freestyle_settings
+        fs.crease_angle = math.radians(r.get("crease_angle_deg", 110))
+        fs.use_culling = True
+        for ls in list(fs.linesets):
+            fs.linesets.remove(ls)
+        for name, coll, spec in (("subject", self.coll_subject, r.get("subject_line", {})), ("context", self.coll_context, r.get("context_line", {}))):
+            ls = fs.linesets.new(name)
+            ls.select_by_collection = True; ls.collection = coll; ls.collection_negation = "INCLUSIVE"
+            ls.select_silhouette = True; ls.select_border = True; ls.select_crease = True
+            ls.select_edge_mark = False; ls.select_contour = False; ls.select_external_contour = False
+            c = spec.get("color", [0.1, 0.1, 0.1])
+            ls.linestyle.color = (c[0], c[1], c[2]); ls.linestyle.thickness = spec.get("thickness", 1.0)
+            ls.linestyle.alpha = 1.0
+        scn.render.use_freestyle = False
+
+    def set_isolation(self, on, subject, visible):
+        scn = bpy.context.scene
+        for coll in (self.coll_subject, self.coll_context):
+            for o in list(coll.objects):
+                coll.objects.unlink(o)
+        scn.render.use_freestyle = bool(on)
+        if not on:
+            return
+        subj = set(subject)
+        for o in visible:
+            (self.coll_subject if o in subj else self.coll_context).objects.link(o)
+            if o not in subj:
+                for sl in o.material_slots:
+                    sl.material = self.context_mat
+                if not o.material_slots:
+                    o.data.materials.append(self.context_mat)
+
+    def place_floor(self, objs):
+        mn, mx = world_aabb(objs)
+        self.floor.location = Vector((self.scene_centre.x, self.scene_centre.y, mn.z - 0.0005))
+        bpy.context.view_layer.update()
 
     def objs_of(self, spec, entry=None):
         if spec == "all":
@@ -321,13 +446,7 @@ class Scene:
         visible = [o for o in self.all_objs if o not in hidden]
         subject = [o for o in self.objs_of(v["subject"], entry) if o not in hidden]
         subj = set(subject)
-        if v.get("others") == "ghost":
-            for o in visible:
-                if o not in subj:
-                    if not o.material_slots:
-                        o.data.materials.append(self.ghost)
-                    for s in o.material_slots:
-                        s.material = self.ghost
+        self.set_isolation(v.get("others") == "isolate", subject, visible)
         if v.get("explode"):
             st = v["subject"].split(":")[1] if ":" in v["subject"] else "right"
             self.explode(v["explode"], st)
@@ -335,6 +454,7 @@ class Scene:
         else:
             frame_objs = subject
         long_side = r["preview_long_side_px"] if preview else (r["hero_long_side_px"] if v.get("hero") else r["long_side_px"])
+        self.place_floor(frame_objs)
         self.frame(frame_objs, v["camera"], long_side)
         scn = bpy.context.scene
         scn.cycles.samples = r["preview_samples"] if preview else r["samples"]
@@ -349,7 +469,9 @@ class Scene:
 
 
 def main():
-    argv = sys.argv[sys.argv.index("--") + 1:]
+    argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
+    if len(argv) < 2:
+        raise SystemExit("usage: render.py JOB.json OUTDIR [--views a,b] [--preview]")
     job_path, outdir = argv[0], argv[1]
     only = None; preview = False; i = 2
     while i < len(argv):

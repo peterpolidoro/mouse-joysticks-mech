@@ -2,3 +2,4 @@
 atlas/job.json
 __pycache__/
 site/
+tmp/
