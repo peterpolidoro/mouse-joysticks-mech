@@ -1,0 +1,645 @@
+{
+ "view": "rig-top",
+ "width": 1600,
+ "height": 800,
+ "entries": [
+  {
+   "id": "lever",
+   "station": "right",
+   "name": "Joystick lever",
+   "box_px": [
+    734.8,
+    283.4,
+    764.2,
+    433.5
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.035,
+    0.1121,
+    0.0121
+   ],
+   "size_gltf": [
+    0.0371,
+    0.0558,
+    -0.0073
+   ]
+  },
+  {
+   "id": "lever",
+   "station": "left",
+   "name": "Joystick lever",
+   "box_px": [
+    857.8,
+    462.9,
+    894.5,
+    635.4
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    0.0122,
+    0.1095,
+    -0.0192
+   ],
+   "size_gltf": [
+    0.0427,
+    0.052,
+    -0.0091
+   ]
+  },
+  {
+   "id": "gear-train",
+   "station": "right",
+   "name": "Spur gear pair",
+   "box_px": [
+    671.2,
+    341.3,
+    760.7,
+    547.8
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0137,
+    0.0603,
+    0.0204
+   ],
+   "size_gltf": [
+    0.0511,
+    0.0846,
+    -0.0221
+   ]
+  },
+  {
+   "id": "gear-train",
+   "station": "left",
+   "name": "Spur gear pair",
+   "box_px": [
+    834.2,
+    339.5,
+    927.8,
+    547.6
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0139,
+    0.0639,
+    -0.0204
+   ],
+   "size_gltf": [
+    0.0515,
+    0.0782,
+    -0.0232
+   ]
+  },
+  {
+   "id": "motor",
+   "station": "right",
+   "name": "Stepper motor",
+   "box_px": [
+    459.9,
+    361.5,
+    735.7,
+    486.6
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0187,
+    0.0434,
+    0.0497
+   ],
+   "size_gltf": [
+    0.0309,
+    0.0203,
+    -0.0682
+   ]
+  },
+  {
+   "id": "motor",
+   "station": "left",
+   "name": "Stepper motor",
+   "box_px": [
+    861.5,
+    363.2,
+    1138.3,
+    493.3
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0177,
+    0.0434,
+    -0.0498
+   ],
+   "size_gltf": [
+    0.0322,
+    0.0203,
+    -0.0685
+   ]
+  },
+  {
+   "id": "encoder",
+   "station": "right",
+   "name": "Lever-axis encoder",
+   "box_px": [
+    485.6,
+    369.9,
+    550.8,
+    463.7
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0205,
+    0.0443,
+    0.0693
+   ],
+   "size_gltf": [
+    0.0232,
+    0.0242,
+    -0.0161
+   ]
+  },
+  {
+   "id": "encoder",
+   "station": "left",
+   "name": "Lever-axis encoder",
+   "box_px": [
+    1044.9,
+    365.2,
+    1111.5,
+    459.4
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0216,
+    0.0443,
+    -0.0692
+   ],
+   "size_gltf": [
+    0.0233,
+    0.0242,
+    -0.0165
+   ]
+  },
+  {
+   "id": "limit-switch",
+   "station": "right",
+   "name": "Limit switch",
+   "box_px": [
+    663.6,
+    490.0,
+    697.9,
+    572.8
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    0.0078,
+    0.0873,
+    0.0291
+   ],
+   "size_gltf": [
+    0.0205,
+    0.0199,
+    -0.0085
+   ]
+  },
+  {
+   "id": "limit-switch",
+   "station": "left",
+   "name": "Limit switch",
+   "box_px": [
+    900.0,
+    488.5,
+    935.8,
+    571.6
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    0.0075,
+    0.0873,
+    -0.0295
+   ],
+   "size_gltf": [
+    0.0206,
+    0.0199,
+    -0.0089
+   ]
+  },
+  {
+   "id": "brake",
+   "station": "right",
+   "name": "Magnetic particle brake",
+   "box_px": [
+    552.4,
+    336.5,
+    741.4,
+    509.9
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.019,
+    0.0772,
+    0.0375
+   ],
+   "size_gltf": [
+    0.0429,
+    0.0383,
+    -0.0468
+   ]
+  },
+  {
+   "id": "brake",
+   "station": "left",
+   "name": "Magnetic particle brake",
+   "box_px": [
+    855.5,
+    346.5,
+    1047.7,
+    521.3
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0163,
+    0.0772,
+    -0.0379
+   ],
+   "size_gltf": [
+    0.0433,
+    0.0383,
+    -0.0475
+   ]
+  },
+  {
+   "id": "torque-sensor",
+   "station": "right",
+   "name": "Reaction torque sensor",
+   "box_px": [
+    332.2,
+    309.7,
+    534.4,
+    508.3
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0225,
+    0.0791,
+    0.0904
+   ],
+   "size_gltf": [
+    0.0491,
+    0.0434,
+    -0.05
+   ]
+  },
+  {
+   "id": "torque-sensor",
+   "station": "left",
+   "name": "Reaction torque sensor",
+   "box_px": [
+    1059.1,
+    293.9,
+    1264.1,
+    495.5
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.026,
+    0.0791,
+    -0.0898
+   ],
+   "size_gltf": [
+    0.0499,
+    0.0434,
+    -0.0507
+   ]
+  },
+  {
+   "id": "shaft-couplers",
+   "station": "right",
+   "name": "Shaft couplers",
+   "box_px": [
+    510.8,
+    330.9,
+    580.6,
+    510.1
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0196,
+    0.0781,
+    0.0625
+   ],
+   "size_gltf": [
+    0.0443,
+    0.0432,
+    -0.0173
+   ]
+  },
+  {
+   "id": "shaft-couplers",
+   "station": "left",
+   "name": "Shaft couplers",
+   "box_px": [
+    1014.2,
+    326.8,
+    1087.3,
+    506.2
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0206,
+    0.0781,
+    -0.0624
+   ],
+   "size_gltf": [
+    0.0444,
+    0.0432,
+    -0.0181
+   ]
+  },
+  {
+   "id": "motor-mount-plate",
+   "station": "right",
+   "name": "Motor mount plate",
+   "box_px": [
+    651.9,
+    323.2,
+    697.6,
+    562.3
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0141,
+    0.0658,
+    0.0306
+   ],
+   "size_gltf": [
+    0.0592,
+    0.0703,
+    -0.0113
+   ]
+  },
+  {
+   "id": "motor-mount-plate",
+   "station": "left",
+   "name": "Motor mount plate",
+   "box_px": [
+    897.0,
+    322.0,
+    947.3,
+    560.7
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0145,
+    0.0658,
+    -0.0306
+   ],
+   "size_gltf": [
+    0.059,
+    0.0703,
+    -0.0125
+   ]
+  },
+  {
+   "id": "torque-sensor-plate",
+   "station": "right",
+   "name": "Torque sensor plate",
+   "box_px": [
+    303.5,
+    274.6,
+    360.8,
+    507.0
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.027,
+    0.0633,
+    0.1154
+   ],
+   "size_gltf": [
+    0.0575,
+    0.0652,
+    -0.0142
+   ]
+  },
+  {
+   "id": "torque-sensor-plate",
+   "station": "left",
+   "name": "Torque sensor plate",
+   "box_px": [
+    1232.8,
+    266.5,
+    1294.5,
+    498.7
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.029,
+    0.0633,
+    -0.1151
+   ],
+   "size_gltf": [
+    0.0574,
+    0.0652,
+    -0.0153
+   ]
+  },
+  {
+   "id": "stage-interface-plate",
+   "station": "right",
+   "name": "Stage interface plate",
+   "box_px": [
+    303.5,
+    274.6,
+    697.6,
+    553.8
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0212,
+    0.0275,
+    0.0737
+   ],
+   "size_gltf": [
+    0.0691,
+    0.0063,
+    -0.0975
+   ]
+  },
+  {
+   "id": "stage-interface-plate",
+   "station": "left",
+   "name": "Stage interface plate",
+   "box_px": [
+    897.0,
+    266.5,
+    1294.5,
+    552.2
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0224,
+    0.0275,
+    -0.0735
+   ],
+   "size_gltf": [
+    0.0707,
+    0.0063,
+    -0.0983
+   ]
+  },
+  {
+   "id": "linear-stage",
+   "station": "right",
+   "name": "Linear stage",
+   "box_px": [
+    214.2,
+    248.0,
+    660.9,
+    523.8
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0282,
+    0.0154,
+    0.0893
+   ],
+   "size_gltf": [
+    0.0682,
+    0.018,
+    -0.1105
+   ]
+  },
+  {
+   "id": "linear-stage",
+   "station": "left",
+   "name": "Linear stage",
+   "box_px": [
+    939.4,
+    276.3,
+    1389.2,
+    559.7
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0202,
+    0.0153,
+    -0.0905
+   ],
+   "size_gltf": [
+    0.0701,
+    0.018,
+    -0.1113
+   ]
+  },
+  {
+   "id": "rotation-plate",
+   "station": "right",
+   "name": "Rotation plate",
+   "box_px": [
+    64.0,
+    111.1,
+    819.3,
+    700.9
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0232,
+    0.0032,
+    0.0883
+   ],
+   "size_gltf": [
+    0.1459,
+    0.0063,
+    -0.1869
+   ]
+  },
+  {
+   "id": "rotation-plate",
+   "station": "left",
+   "name": "Rotation plate",
+   "box_px": [
+    773.0,
+    99.1,
+    1536.0,
+    700.9
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0247,
+    0.0032,
+    -0.0881
+   ],
+   "size_gltf": [
+    0.1489,
+    0.0063,
+    -0.1888
+   ]
+  },
+  {
+   "id": "rotation-lock",
+   "station": "right",
+   "name": "Rotation indicator and lock",
+   "box_px": [
+    84.8,
+    402.1,
+    763.9,
+    494.9
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0127,
+    0.004,
+    0.0926
+   ],
+   "size_gltf": [
+    0.0229,
+    0.0206,
+    -0.168
+   ]
+  },
+  {
+   "id": "rotation-lock",
+   "station": "left",
+   "name": "Rotation indicator and lock",
+   "box_px": [
+    833.0,
+    402.1,
+    1512.3,
+    494.9
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    -0.0127,
+    0.004,
+    -0.0926
+   ],
+   "size_gltf": [
+    0.0229,
+    0.0206,
+    -0.168
+   ]
+  },
+  {
+   "id": "dual-base-plate",
+   "station": "rig",
+   "name": "Dual base plate",
+   "box_px": [
+    92.6,
+    345.8,
+    1504.4,
+    653.8
+   ],
+   "corners_in_frame": 8,
+   "centre_gltf": [
+    0.0,
+    -0.0048,
+    -0.0
+   ],
+   "size_gltf": [
+    0.0762,
+    0.0095,
+    -0.3492
+   ]
+  }
+ ]
+}

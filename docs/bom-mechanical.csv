@@ -1,0 +1,20 @@
+id,name,vendor,part_numbers,model_names,qty_right,qty_left,qty_rig,qty
+lever,Joystick lever,Janelia (custom),,MCL LEVER,1,1,0,2
+gear-train,Spur gear pair,Janelia (custom),,DRIVEN SPUR GEAR MIR; Spur Gears,1,2,0,3
+motor,Stepper motor,Lin Engineering,208-13-01D,LIN ENGINEERING 208-13-01D,1,1,0,2
+encoder,Lever-axis encoder,US Digital,E4T-200-157-S-H-M-B,US DIGITAL E4T-200-157-S-H-M-B,1,1,0,2
+limit-switch,Limit switch,Omron,D2F-01FL,D2F_01FL,1,1,0,2
+brake,Magnetic particle brake,Placid Industries,B5Z-1R,PLACID INDUSTRIES B5Z-1R,1,1,0,2
+torque-sensor,Reaction torque sensor,Transducer Techniques,RTS-5,TransducerTechniquesRTS5,1,1,0,2
+shaft-couplers,Shaft couplers,Janelia (custom),,Coupler-SensorSide; CouplerBrakeSide,2,2,0,4
+lever-axis-bearings,Lever-axis bearings,McMaster-Carr,57155K316; 1677K313,MCMASTER 1677K313_Ultra-Low-Friction Oil-Embedded Sleeve Bearing; MCMASTER 57155K316_Ball Bearing,2,2,0,4
+motor-mount-plate,Motor mount plate,Janelia (custom),,MOTOR MOUNT PLATE; MOTOR MOUNT PLATE_MIR,1,1,0,2
+torque-sensor-plate,Torque sensor plate,Janelia (custom),,TORQUE SENSOR PLATE,1,1,0,2
+frame-standoffs,Frame standoffs and spacers,McMaster-Carr,93330A541; 92510A421; 91125A431,MCMASTER 91125A431_Female Threaded Round Standoff; MCMASTER 92510A421_Aluminum Unthreaded Spacer; MCMASTER 93330A541_Female Threaded Round Standoff,9,9,0,18
+stage-interface-plate,Stage interface plate,Janelia (custom),,STAGE INTERFACE PLATE,1,1,0,2
+linear-stage,Linear stage,Misumi,XSLC60,MISUMI XSLC60,1,1,0,2
+rotation-plate,Rotation plate,Janelia (custom),,ROTATION PLATE,1,1,0,2
+rotation-lock,Rotation indicator and lock,"McMaster-Carr, Janelia (custom)",94052A133; 92196A537; 90298A149,MCMASTER 90298A149_18-8 Stainless Steel Shoulder Screw; MCMASTER 92196A537_18-8 Stainless Steel Socket Head Screw; MCMASTER 94052A133_Screw-Head Mount Knob; ROTATION INDICATOR,4,4,0,8
+dual-base-plate,Dual base plate,Janelia (custom),,DUAL BASE PLATE,0,0,1,1
+servocity-parts,ServoCity shaft hardware,ServoCity (goBILDA),1314-0016-0004; 1314-0016-0125; 1203-0001-0001,1203-0001-0001; SERVO CITY 1314-0016-0004; SERVO CITY 1314-0016-0125,6,6,0,12
+fasteners,Fasteners,McMaster-Carr,92196A112; 91292A117; 92196A144; 92196A066; 92196A022; 90730A005,90730A005_18-8 Stainless Steel Narrow Hex Nut; 92196A022_18-8 Stainless Steel Socket Head Screw; 92196A066_18-8 Stainless Steel Socket Head Screw; 92196A144_18-8 Stainless Steel Socket Head Screw; MCMASTER 91292A117_18-8 Stainless Steel Socket Head Screw; MCMASTER 92196A112_18-8 Stainless Steel Socket Head Screw,16,16,0,32

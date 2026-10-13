@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 1200" width="1600" height="1200">
+<style>.hs rect{fill:transparent;stroke:transparent;stroke-width:2}.hs:hover rect{stroke:#d9480f;fill:rgba(217,72,15,.08)}.hs text{font:bold 20px sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}.hs circle{fill:#d9480f;stroke:#fff;stroke-width:1.5}</style>
+<image href="part-motor.png" width="1600" height="1200"/>
+<a class="hs" xlink:href="../docs/components/motor.md" href="../docs/components/motor.md"><title>Stepper motor</title><rect x="440" y="355" width="720" height="491"/><circle cx="459" cy="374" r="19"/><text x="459" y="374">1</text></a>
+<a class="hs" xlink:href="../docs/components/encoder.md" href="../docs/components/encoder.md"><title>Lever-axis encoder</title><rect x="779" y="456" width="293" height="364"/><circle cx="798" cy="475" r="19"/><text x="798" y="475">2</text></a>
+</svg>

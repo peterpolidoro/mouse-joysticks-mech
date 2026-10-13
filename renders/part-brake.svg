@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 1200" width="1600" height="1200">
+<style>.hs rect{fill:transparent;stroke:transparent;stroke-width:2}.hs:hover rect{stroke:#d9480f;fill:rgba(217,72,15,.08)}.hs text{font:bold 20px sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}.hs circle{fill:#d9480f;stroke:#fff;stroke-width:1.5}</style>
+<image href="part-brake.png" width="1600" height="1200"/>
+<a class="hs" xlink:href="../docs/components/gear-train.md" href="../docs/components/gear-train.md"><title>Spur gear pair</title><rect x="496" y="256" width="436" height="786"/><circle cx="515" cy="275" r="19"/><text x="515" y="275">1</text></a>
+<a class="hs" xlink:href="../docs/components/motor-mount-plate.md" href="../docs/components/motor-mount-plate.md"><title>Motor mount plate</title><rect x="561" y="288" width="420" height="704"/><circle cx="580" cy="308" r="19"/><text x="580" y="308">2</text></a>
+<a class="hs" xlink:href="../docs/components/limit-switch.md" href="../docs/components/limit-switch.md"><title>Limit switch</title><rect x="814" y="311" width="160" height="212"/><circle cx="832" cy="330" r="19"/><text x="832" y="330">3</text></a>
+<a class="hs" xlink:href="../docs/components/brake.md" href="../docs/components/brake.md"><title>Magnetic particle brake</title><rect x="519" y="330" width="561" height="540"/><circle cx="538" cy="349" r="19"/><text x="538" y="349">4</text></a>
+<a class="hs" xlink:href="../docs/components/shaft-couplers.md" href="../docs/components/shaft-couplers.md"><title>Shaft couplers</title><rect x="770" y="384" width="390" height="540"/><circle cx="789" cy="403" r="19"/><text x="789" y="403">5</text></a>
+<a class="hs" xlink:href="../docs/components/torque-sensor.md" href="../docs/components/torque-sensor.md"><title>Reaction torque sensor</title><rect x="818" y="402" width="720" height="729"/><circle cx="837" cy="421" r="19"/><text x="837" y="421">6</text></a>
+<a class="hs" xlink:href="../docs/components/motor.md" href="../docs/components/motor.md"><title>Stepper motor</title><rect x="585" y="649" width="609" height="466"/><circle cx="604" cy="668" r="19"/><text x="604" y="668">7</text></a>
+<a class="hs" xlink:href="../docs/components/encoder.md" href="../docs/components/encoder.md"><title>Lever-axis encoder</title><rect x="876" y="769" width="244" height="317"/><circle cx="896" cy="788" r="19"/><text x="896" y="788">8</text></a>
+</svg>

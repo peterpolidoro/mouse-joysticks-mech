@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 1200" width="1600" height="1200">
+<style>.hs rect{fill:transparent;stroke:transparent;stroke-width:2}.hs:hover rect{stroke:#d9480f;fill:rgba(217,72,15,.08)}.hs text{font:bold 20px sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}.hs circle{fill:#d9480f;stroke:#fff;stroke-width:1.5}</style>
+<image href="part-lever.png" width="1600" height="1200"/>
+<a class="hs" xlink:href="../docs/components/lever.md" href="../docs/components/lever.md"><title>Joystick lever</title><rect x="667" y="330" width="266" height="540"/><circle cx="686" cy="349" r="19"/><text x="686" y="349">1</text></a>
+<a class="hs" xlink:href="../docs/components/torque-sensor.md" href="../docs/components/torque-sensor.md"><title>Reaction torque sensor</title><rect x="357" y="435" width="509" height="509"/><circle cx="376" cy="454" r="19"/><text x="376" y="454">2</text></a>
+<a class="hs" xlink:href="../docs/components/brake.md" href="../docs/components/brake.md"><title>Magnetic particle brake</title><rect x="393" y="459" width="451" height="446"/><circle cx="412" cy="478" r="19"/><text x="412" y="478">3</text></a>
+<a class="hs" xlink:href="../docs/components/gear-train.md" href="../docs/components/gear-train.md"><title>Spur gear pair</title><rect x="554" y="461" width="377" height="694"/><circle cx="573" cy="480" r="19"/><text x="573" y="480">4</text></a>
+<a class="hs" xlink:href="../docs/components/limit-switch.md" href="../docs/components/limit-switch.md"><title>Limit switch</title><rect x="1040" y="590" width="152" height="209"/><circle cx="1059" cy="609" r="19"/><text x="1059" y="609">5</text></a>
+<a class="hs" xlink:href="../docs/components/encoder.md" href="../docs/components/encoder.md"><title>Lever-axis encoder</title><rect x="814" y="888" width="205" height="273"/><circle cx="833" cy="907" r="19"/><text x="833" y="907">6</text></a>
+</svg>

@@ -1,0 +1,115 @@
+# Scene definition for atlas/render.py.
+#
+# Frame: the glTF's own, as exported from Inventor: metres, Y up, the base
+# plate's long axis along Z, the right station at Z > 0 and the left (mirrored)
+# station at Z < 0. Every vector in this file is in that frame; render.py
+# converts to Blender's Z-up frame on import ((x, y, z) -> (x, -z, y)).
+#
+# Measured from mouse-joysticks.glb on 2026-10-13:
+#   whole assembly        x -0.099..0.050  y -0.010..0.140  z -0.182..0.182
+#   dual base plate       76 x 10 x 349 mm, top face at y = 0
+#   right station         centre (-0.023, 0.068, 0.088); lever at z 0.009..0.016,
+#                         torque sensor at z 0.066..0.114 (the lever axis runs +Z)
+#   left station          centre (-0.025, 0.065, -0.088); the mirror image
+#   lever axis            y 0.078, x about -0.015 (brake, driven gear, torque sensor)
+#   motor axis            y 0.043, x about -0.019
+
+units: metres
+model: mouse-joysticks.glb
+
+stations:
+  right: {root: "GEAR DRIVEN SINGLE LEVER:1", z_sign: 1}
+  left:  {root: "GEAR DRIVEN SINGLE LEVER:2", z_sign: -1}
+# Scene-root nodes that are not under a station root belong to the station on
+# their side of z = 0, except the base plate, which belongs to the rig.
+rig_nodes: ["DUAL BASE PLATE:*"]
+
+# The controller boards, as a placement study (mouse-joystick-pcb
+# docs/rig-layout.md and docs/connector-access-2026-09-21.md): each board
+# stands on its long edge under its station, component side facing -X, the
+# terminal-block edge up toward the mechanism. Reproduces docs/rig-layout.png
+# approximately; the enclosure decision is open and nothing here fixes it.
+# `rotation_deg` is X, Y, Z rotations about the glTF axes applied in that
+# order, before `position`. The board glTF has the board in its XZ plane,
+# component side +Y, KiCad's top edge (the terminal blocks, J1102/J1103/J1601)
+# at small Z: checked 2026-10-13 against U501 (36 V switch, top left) and U201
+# (USB, lower left). [0, -90, 90] stands it up with the top edge up and the
+# components facing -X.
+boards:
+  joystick-board:
+    file: atlas/boards/mouse-joystick-pcb.glb
+    instances:
+      - {station: right, position: [-0.060, -0.040, 0.088], rotation_deg: [0, -90, 90]}
+      - {station: left,  position: [-0.060, -0.040, -0.088], rotation_deg: [0, -90, 90]}
+  camera-board:
+    file: atlas/boards/camera-gpio-interface-pcb.glb
+    instances: []        # not placed in the mechanical renders; it sits elsewhere on the rig
+
+explode:
+  step: 0.025            # metres per unit of `explode.order` in the registry
+  factors: [0.25, 0.5, 1.0]
+  # axis z: along the station's lever axis away from the lever (+Z on the
+  #         right station, -Z on the left); axis y: downward.
+
+render:
+  engine: CYCLES
+  samples: 96
+  preview_samples: 16
+  long_side_px: 1600
+  hero_long_side_px: 2400
+  preview_long_side_px: 640
+  film_transparent: false      # an opaque light backdrop reads on GitHub's light and dark themes alike
+  background: [0.93, 0.94, 0.96]
+  view_transform: Filmic       # keeps the white plates from clipping
+  ghost_alpha: 0.12
+  sun: {direction: [-0.6, 1.0, -0.4], strength: 2.0, angle_deg: 8}
+  world_strength: 1.0
+  # Inventor's polished metals arrive with roughness 0 and read as mirrors of the
+  # world; matte dielectrics and flat shading give an illustration look that shows
+  # every face. Colours are kept.
+  materials: {roughness_min: 0.5, metallic_max: 0.0, flat_shading: true}
+
+# Camera `direction` is the vector from the subject's centre to the camera;
+# `fill` is the fraction of the frame the subject's projected bounds occupy.
+views:
+  - id: rig-iso
+    subject: all
+    hero: true
+    camera: {kind: perspective, direction: [-1.0, 0.55, 0.8], fill: 0.90, aspect: [3, 2]}
+  - id: rig-with-boards-iso
+    subject: all
+    boards: true
+    camera: {kind: perspective, direction: [-1.0, 0.55, 0.8], fill: 0.90, aspect: [3, 2]}
+  - id: rig-top
+    subject: all
+    camera: {kind: ortho, direction: [0, 1, 0], up: [-1, 0, 0], fill: 0.92}
+  - id: rig-front
+    subject: all
+    camera: {kind: ortho, direction: [-1, 0, 0], fill: 0.92}
+  - id: rig-side
+    subject: all
+    camera: {kind: ortho, direction: [0, 0, 1], fill: 0.92}
+  - id: station-iso
+    subject: station:right
+    camera: {kind: perspective, direction: [-1.0, 0.6, 0.9], fill: 0.88, aspect: [4, 3]}
+  - id: station-exploded-25
+    subject: station:right
+    explode: 0.25
+    camera: {kind: perspective, direction: [-1.0, 0.6, 0.9], fill: 0.88, aspect: [4, 3]}
+  - id: station-exploded-50
+    subject: station:right
+    explode: 0.5
+    camera: {kind: perspective, direction: [-1.0, 0.6, 0.9], fill: 0.88, aspect: [4, 3]}
+  - id: station-exploded-100
+    subject: station:right
+    explode: 1.0
+    camera: {kind: perspective, direction: [-1.0, 0.6, 0.9], fill: 0.88, aspect: [4, 3]}
+  # One view per registry entry with `render: true`: the entry's right-station
+  # instance opaque, the rest of that station and the base plate ghosted, the
+  # left station hidden, the camera framed on the entry.
+  - id: part-{id}
+    per_part: true
+    subject: entry:right
+    others: ghost
+    hide: station:left
+    camera: {kind: perspective, direction: [-1.0, 0.7, 0.9], fill: 0.45, aspect: [4, 3]}

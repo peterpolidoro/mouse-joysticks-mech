@@ -1,0 +1,456 @@
+# Component registry of the joystick rig.
+#
+# One entry per thing a reader can point at: the mechanical parts of the two
+# joystick stations, the boards, the cables and the external endpoints. Every
+# render list, exploded-view offset, hotspot, callout number, component page,
+# BOM row and the firmware repository's circuit-to-code map is generated from
+# this file; nothing downstream is written by hand.
+#
+# Conventions
+#   id          kebab-case, stable; file names and anchors derive from it
+#   kind        mechanical | board | cable | external
+#   station     left | right | both | rig   (both = one instance per station)
+#   gltf_nodes  glob patterns matched against node names in mouse-joysticks.glb
+#               (the Inventor product names). Blender appends ".NNN" to a
+#               duplicate name on import; the matcher strips that suffix first.
+#               A pattern that matches nothing is an error.
+#   station map in the glTF (confirmed from the part names, 2026-10-13):
+#               right = "GEAR DRIVEN SINGLE LEVER:1" (Z > 0)
+#               left  = "GEAR DRIVEN SINGLE LEVER:2" (Z < 0; carries the
+#                       mirrored MOTOR MOUNT PLATE_MIR and DRIVEN SPUR GEAR MIR,
+#                       and takes the LEFT harness)
+#   connects_to board connector a cable or part reaches, by reference
+#               designator of mouse-joystick-pcb v1.0 unless `board` says otherwise
+#   block_instance  the schematic block page in the PCB repository
+#               (docs/generated/blocks/<instance>.md, kicad-libs step 2; empty
+#               until it exists, and the generators omit the link)
+#   firmware    files, protocol verbs and events, bring-up example in
+#               mouse-joystick-firm; the circuit-to-code map reads these
+#   explode     axis and order for the exploded view (station frame, section 6
+#               of the documentation plan); omitted = stays in place
+#   render      true = an isolated render and a component page
+#   bom         true = a row in the mechanical BOM (instances counted from the glTF)
+#   confirm     open questions for Sam Jager or the bench, printed on the page
+#
+# Units in this file and in scene.yaml: metres, the glTF's own frame (Y up,
+# the base plate's long axis along Z).
+
+- id: lever
+  name: Joystick lever
+  kind: mechanical
+  station: both
+  gltf_nodes: ["MCL LEVER:*"]
+  vendor: Janelia (custom)
+  description: >-
+    The lever the mouse holds. Rides on the lever axis at the front of the
+    station; a pull moves it toward decreasing angle on both stations.
+  explode: {axis: z, order: 0}
+  render: true
+  bom: true
+  confirm: ["Material and finish of the lever (not in the model)."]
+
+- id: gear-train
+  name: Spur gear pair
+  kind: mechanical
+  station: both
+  gltf_nodes: ["Spur Gears:*", "DRIVEN SPUR GEAR MIR:*"]
+  vendor: Janelia (custom)
+  description: >-
+    Driving gear on the motor shaft, driven gear on the lever axis. The
+    mirrored station has its own driven gear. The gear ratio is the number the
+    firmware's angle scaling depends on.
+  firmware:
+    files: [src/Conversions.hpp]
+    notes: "gear ratio and microsteps per lever degree live here"
+  explode: {axis: z, order: 1}
+  render: true
+  bom: true
+  confirm: ["Tooth counts of the driving and driven gears, to check against src/Conversions.hpp."]
+
+- id: motor
+  name: Stepper motor
+  kind: mechanical
+  station: both
+  gltf_nodes: ["LIN ENGINEERING 208-13-01D:*"]
+  vendor: Lin Engineering
+  part_number: 208-13-01D
+  datasheet: mouse-joystick-pcb/docs/datasheets/motor.pdf
+  description: >-
+    The motor that presents, parks and homes the lever through the gear pair.
+    Rated 0.6 A per phase; the firmware runs it below that.
+  connects_to:
+    - {board: mouse-joystick-pcb, connector: J1102, cable: harness}
+  block_instance: motor_encoder_switch/tmc5130
+  firmware:
+    files: [src/TmcMotion.hpp, src/MotionSetup.hpp, src/TmcSpi.hpp, src/TmcRegisters.hpp]
+    protocol: [HOME, MOVETO, ARM, STOP, "ev TARGET", "ev HOMED"]
+    bringup: [examples/TMC5130Communication, examples/MotionAndHoming, docs/motion-bringup.md]
+  explode: {axis: z, order: 2}
+  render: true
+  bom: true
+
+- id: encoder
+  name: Lever-axis encoder
+  kind: mechanical
+  station: both
+  gltf_nodes: ["US DIGITAL E4T-200-157-S-H-M-B:*"]
+  vendor: US Digital
+  part_number: E4T-200-157-S-H-M-B
+  datasheet: mouse-joystick-pcb/docs/datasheets/encoder.pdf
+  description: >-
+    Optical kit encoder. Its A and B channels reach the board's encoder input
+    and are counted by the TMC5130A, not by the RP2040; the firmware reads the
+    count over SPI.
+  connects_to:
+    - {board: mouse-joystick-pcb, connector: J1103, cable: harness}
+  block_instance: motor_encoder_switch/quadrature_encoder_input_5v_sn74lvc2g17
+  firmware:
+    files: [src/TmcMotion.hpp, src/Conversions.hpp]
+    protocol: ["STATUS (angle)", "ev TARGET"]
+    bringup: [examples/MotionAndHoming, docs/motion-bringup.md]
+  explode: {axis: z, order: 2}
+  render: true
+  bom: true
+  confirm:
+    - "The model names a 200 CPR disk (E4T-200) while the bring-up log confirms 1000 CPR against 51200 microsteps per revolution; which part is fitted?"
+
+- id: limit-switch
+  name: Limit switch
+  kind: mechanical
+  station: both
+  gltf_nodes: ["D2F_01FL:*"]
+  vendor: Omron
+  part_number: D2F-01FL
+  description: >-
+    Subminiature basic switch with a lever actuator at the positive end of
+    travel. The firmware homes against it and uses it as the hardware stop
+    for negative motion through the driver's reference input.
+  connects_to:
+    - {board: mouse-joystick-pcb, connector: J1601, cable: harness}
+  block_instance: motor_encoder_switch/limit_switch_debounced_input_vertical
+  firmware:
+    files: [src/MotionSetup.hpp, src/TmcMotion.hpp]
+    protocol: [HOME, "ev HOMED"]
+    bringup: [examples/MotionAndHoming]
+  explode: {axis: y, order: 1}
+  render: true
+  bom: true
+
+- id: brake
+  name: Magnetic particle brake
+  kind: mechanical
+  station: both
+  gltf_nodes: ["PLACID INDUSTRIES B5Z-1R:*"]
+  vendor: Placid Industries
+  part_number: B5Z-1R
+  datasheet: mouse-joystick-pcb/docs/datasheets/brake.pdf
+  description: >-
+    On the lever axis behind the gear. The board's current sink drives its
+    coil from 0 to about 49 mA to set the resistance the mouse feels while the
+    lever is released.
+  connects_to:
+    - {board: mouse-joystick-pcb, connector: J1801, cable: brake-lead}
+  block_instance: brake_torque_sensor/brake_current_sink_0_49ma_dac80501
+  firmware:
+    files: [src/BrakeTorqueHw.hpp, src/BrakeTorqueBackend.hpp, src/DAC80501Device.hpp]
+    protocol: [BRAKE, "ev RELEASED", "~BRAKE_FAULT in the fault mask"]
+    bringup: [examples/BrakeAndTorque, docs/brake-torque-bringup.md]
+  explode: {axis: z, order: 3}
+  render: true
+  bom: true
+
+- id: torque-sensor
+  name: Reaction torque sensor
+  kind: mechanical
+  station: both
+  gltf_nodes: ["TransducerTechniquesRTS5:*"]
+  vendor: Transducer Techniques
+  part_number: RTS-5
+  datasheet: mouse-joystick-pcb/docs/datasheets/torque-sensor-specs.png
+  description: >-
+    350 ohm bridge, 1.5 mV/V, 5 in-oz, at the rear of the lever axis. The
+    board excites it, amplifies it, samples it at 1 kHz and puts a copy on the
+    torque BNC. The left station reads a pull negative where the right reads
+    positive.
+  connects_to:
+    - {board: mouse-joystick-pcb, connector: J2001, cable: torque-lead}
+  block_instance: brake_torque_sensor/torque_bridge_0_3v3_ina821
+  firmware:
+    files: [src/BrakeTorqueHw.hpp, src/ADS8689Device.hpp, src/BoardCalibration.hpp]
+    protocol: [TQ, "STATUS (torque)", "ev TOUCH", "ev PULL / PUSH"]
+    bringup: [examples/BrakeAndTorque, docs/brake-torque-bringup.md]
+  explode: {axis: z, order: 5}
+  render: true
+  bom: true
+
+- id: shaft-couplers
+  name: Shaft couplers
+  kind: mechanical
+  station: both
+  gltf_nodes: ["CouplerBrakeSide:*", "Coupler-SensorSide:*"]
+  vendor: Janelia (custom)
+  description: >-
+    Two couplers on the lever axis: one between the gear and the brake, one
+    between the brake and the torque sensor.
+  explode: {axis: z, order: 4}
+  render: true
+  bom: true
+
+- id: lever-axis-bearings
+  name: Lever-axis bearings
+  kind: mechanical
+  station: both
+  gltf_nodes: ["MCMASTER 57155K316_Ball Bearing:*", "MCMASTER 1677K313_Ultra-Low-Friction Oil-Embedded Sleeve Bearing:*"]
+  vendor: McMaster-Carr
+  part_number: 57155K316, 1677K313
+  description: A ball bearing and a sleeve bearing carrying the lever axis.
+  render: false
+  bom: true
+
+- id: motor-mount-plate
+  name: Motor mount plate
+  kind: mechanical
+  station: both
+  gltf_nodes: ["MOTOR MOUNT PLATE:*", "MOTOR MOUNT PLATE_MIR:*"]
+  vendor: Janelia (custom)
+  description: >-
+    Vertical plate at the front of the station carrying the motor and the
+    front of the lever axis; mirrored on the left station.
+  explode: {axis: y, order: 2}
+  render: true
+  bom: true
+
+- id: torque-sensor-plate
+  name: Torque sensor plate
+  kind: mechanical
+  station: both
+  gltf_nodes: ["TORQUE SENSOR PLATE:*"]
+  vendor: Janelia (custom)
+  description: Vertical plate at the rear of the station carrying the torque sensor.
+  explode: {axis: y, order: 2}
+  render: true
+  bom: true
+
+- id: frame-standoffs
+  name: Frame standoffs and spacers
+  kind: mechanical
+  station: both
+  gltf_nodes: ["MCMASTER 93330A541_Female Threaded Round Standoff:*", "MCMASTER 92510A421_Aluminum Unthreaded Spacer:*", "MCMASTER 91125A431_Female Threaded Round Standoff:*"]
+  vendor: McMaster-Carr
+  part_number: 93330A541, 92510A421, 91125A431
+  description: Standoffs and spacers tying the two vertical plates to the stage interface plate.
+  render: false
+  bom: true
+
+- id: stage-interface-plate
+  name: Stage interface plate
+  kind: mechanical
+  station: both
+  gltf_nodes: ["STAGE INTERFACE PLATE:*"]
+  vendor: Janelia (custom)
+  description: Horizontal plate between the linear stage carriage and the station's frame.
+  explode: {axis: y, order: 3}
+  render: true
+  bom: true
+
+- id: linear-stage
+  name: Linear stage
+  kind: mechanical
+  station: both
+  gltf_nodes: ["MISUMI XSLC60:*"]
+  vendor: Misumi
+  part_number: XSLC60
+  description: >-
+    Base and carriage. Lets the whole station slide along the base plate's
+    long axis to set the lever's distance from the mouse.
+  explode: {axis: y, order: 4}
+  render: true
+  bom: true
+  confirm: ["Full Misumi part number (travel and options)."]
+
+- id: rotation-plate
+  name: Rotation plate
+  kind: mechanical
+  station: both
+  gltf_nodes: ["ROTATION PLATE:*"]
+  vendor: Janelia (custom)
+  description: >-
+    Plate under the linear stage that rotates on the base plate to set the
+    station's angle; the indicator and lock knob read and hold it.
+  explode: {axis: y, order: 5}
+  render: true
+  bom: true
+
+- id: rotation-lock
+  name: Rotation indicator and lock
+  kind: mechanical
+  station: both
+  gltf_nodes: ["ROTATION INDICATOR:*", "MCMASTER 94052A133_Screw-Head Mount Knob:*", "MCMASTER 92196A537_18-8 Stainless Steel Socket Head Screw:*", "MCMASTER 90298A149_18-8 Stainless Steel Shoulder Screw:*"]
+  vendor: McMaster-Carr, Janelia (custom)
+  part_number: 94052A133, 92196A537, 90298A149
+  description: The pointer, the pivot shoulder screw and the knob that locks the rotation plate.
+  explode: {axis: y, order: 5}
+  render: true
+  bom: true
+
+- id: dual-base-plate
+  name: Dual base plate
+  kind: mechanical
+  station: rig
+  gltf_nodes: ["DUAL BASE PLATE:*"]
+  vendor: Janelia (custom)
+  description: The common base both stations rotate and slide on; 349 by 76 mm.
+  explode: {axis: y, order: 6}
+  render: true
+  bom: true
+
+- id: servocity-parts
+  name: ServoCity shaft hardware
+  kind: mechanical
+  station: both
+  gltf_nodes: ["SERVO CITY 1314-0016-0004:*", "SERVO CITY 1314-0016-0125:*", "1203-0001-0001:*"]
+  vendor: ServoCity (goBILDA)
+  part_number: 1314-0016-0004, 1314-0016-0125, 1203-0001-0001
+  description: Hubs and pattern hardware on the lever axis and gears.
+  render: false
+  bom: true
+  confirm: ["What each of the three ServoCity part numbers is and does."]
+
+- id: fasteners
+  name: Fasteners
+  kind: mechanical
+  station: both
+  gltf_nodes: ["MCMASTER 92196A112_*", "MCMASTER 91292A117_*", "92196A144_*", "92196A066_*", "92196A022_*", "90730A005_*"]
+  vendor: McMaster-Carr
+  part_number: 92196A112, 91292A117, 92196A144, 92196A066, 92196A022, 90730A005
+  description: Socket head screws and a hex nut.
+  render: false
+  bom: true
+
+# ----------------------------------------------------------------- boards
+
+- id: joystick-board
+  name: Joystick controller board
+  kind: board
+  station: both
+  repository: mouse-joystick-pcb
+  tag: v1.0
+  model: atlas/boards/mouse-joystick-pcb.glb
+  description: >-
+    One per station: RP2040, TMC5130A driver, brake current sink, torque
+    bridge, angle and torque analog outputs, pyControl UART on an RJ-45.
+    Placement in the renders follows the 2026-09-21 placement study and is not
+    a fixture.
+  docs:
+    - mouse-joystick-pcb/README.md
+    - mouse-joystick-pcb/docs/interface-map.md
+    - mouse-joystick-pcb/docs/rig-layout.md
+  render: true
+  bom: false
+
+- id: camera-board
+  name: Camera GPIO interface board
+  kind: board
+  station: rig
+  repository: camera-gpio-interface-pcb
+  tag: v1.0
+  model: atlas/boards/camera-gpio-interface-pcb.glb
+  description: Between pyControl and the three Blackfly S cameras; strobes and sync to the OneBox. Rig 1 only.
+  docs: [camera-gpio-interface-pcb/README.md]
+  render: true
+  bom: false
+
+- id: pycontrol-controller
+  name: pyControl controller
+  kind: board
+  station: rig
+  description: pyboard PYBv1.1 on a Breakout 1.2; left joystick on port 1, right on port 4, solenoid on port 5.
+  docs:
+    - mouse-joystick-firm/pycontrol/README.md
+    - mouse-joystick-pcb/docs/pycontrol-port-pinout.md
+  render: false
+  bom: false
+
+# ----------------------------------------------------------------- cables
+
+- id: harness
+  name: Joystick harness (motor, encoder, limit switch)
+  kind: cable
+  station: both
+  description: >-
+    Left and right variants; the left swaps one coil pair and A/B so the
+    boards and firmware are identical. Label them.
+  connects_to:
+    - {board: mouse-joystick-pcb, connector: J1102}
+    - {board: mouse-joystick-pcb, connector: J1103}
+    - {board: mouse-joystick-pcb, connector: J1601}
+  docs: [mouse-joystick-pcb/docs/harness-pinouts.md]
+  wireviz: mouse-joystick-pcb/docs/harness/left.yaml, mouse-joystick-pcb/docs/harness/right.yaml
+  render: false
+
+- id: brake-lead
+  name: Brake coil lead
+  kind: cable
+  station: both
+  connects_to: [{board: mouse-joystick-pcb, connector: J1801}]
+  docs: [mouse-joystick-pcb/docs/interface-map.md]
+  render: false
+
+- id: torque-lead
+  name: Torque sensor lead
+  kind: cable
+  station: both
+  description: "Five conductors, shielded: excitation, signal pair, ground, shield."
+  connects_to: [{board: mouse-joystick-pcb, connector: J2001}]
+  docs: [mouse-joystick-pcb/docs/interface-map.md]
+  render: false
+
+- id: rj45-link
+  name: pyControl link
+  kind: cable
+  station: both
+  description: Straight Ethernet patch cable; pins 1, 2, 4 and 6 used.
+  connects_to: [{board: mouse-joystick-pcb, connector: J301}]
+  docs: [mouse-joystick-pcb/docs/pycontrol-port-pinout.md]
+  render: false
+
+- id: analog-outputs
+  name: Angle and torque BNC runs
+  kind: cable
+  station: both
+  connects_to:
+    - {board: mouse-joystick-pcb, connector: J1101}
+    - {board: mouse-joystick-pcb, connector: J901}
+  docs: [mouse-joystick-pcb/docs/onebox-analog-interface.md]
+  render: false
+
+- id: supply-36v
+  name: 36 V motor supply
+  kind: cable
+  station: both
+  connects_to: [{board: mouse-joystick-pcb, connector: J501}]
+  docs: [mouse-joystick-pcb/docs/power.md]
+  render: false
+
+# ----------------------------------------------------------------- external
+
+- id: onebox
+  name: Neuropixels OneBox
+  kind: external
+  station: rig
+  description: Records the eight BNCs at 30 kHz; the analog copies are the sub-millisecond record.
+  render: false
+
+- id: cameras
+  name: Blackfly S cameras
+  kind: external
+  station: rig
+  description: Triggered at 150 Hz through the camera interface board.
+  render: false
+
+- id: acquisition-pc
+  name: Acquisition PC
+  kind: external
+  station: rig
+  description: pyControl GUI, SpikeGLX, the camera scripts; every board's USB.
+  render: false

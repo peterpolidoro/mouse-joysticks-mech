@@ -1,0 +1,38 @@
+{
+ "inputs": {
+  "mouse-joysticks.glb": "6dc022e905122071d4a025ca9623fb7e32b1aaa5f35fa638d52cf919694b71d6",
+  "atlas/components.yaml": "0c221562b7242704e85af58b4c1d178bc976cbb22de33c3e8dbdee18d2aee29a",
+  "atlas/scene.yaml": "fe878df0eaa50557c23adb0de3ede959eb5b1a3a1d3fd4b9200580b1a6334439",
+  "atlas/build.py": "045ae6eded994dbb851e7d8ca3a5f70e32cddd0022ec7ea9b501e2292275c981",
+  "atlas/render.py": "701bf2a5068e877f356d04c9fcf2fbe16bc758a1001e6f40e7f4e0b5640b7d4a",
+  "atlas/boards/mouse-joystick-pcb.glb": "7afe8a827af882fe978a3cc75d0212202d48d2f2de401cbf815295f76cbf9b65",
+  "atlas/boards/camera-gpio-interface-pcb.glb": "fe40739c11c013db5be54aab0e84324e8f04a2e1ad6fc05c092738997961ccbf"
+ },
+ "views": [
+  "rig-iso",
+  "rig-with-boards-iso",
+  "rig-top",
+  "rig-front",
+  "rig-side",
+  "station-iso",
+  "station-exploded-25",
+  "station-exploded-50",
+  "station-exploded-100",
+  "part-lever",
+  "part-gear-train",
+  "part-motor",
+  "part-encoder",
+  "part-limit-switch",
+  "part-brake",
+  "part-torque-sensor",
+  "part-shaft-couplers",
+  "part-motor-mount-plate",
+  "part-torque-sensor-plate",
+  "part-stage-interface-plate",
+  "part-linear-stage",
+  "part-rotation-plate",
+  "part-rotation-lock",
+  "part-dual-base-plate"
+ ],
+ "blender": "4.5.10 LTS"
+}
