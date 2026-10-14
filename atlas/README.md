@@ -90,7 +90,8 @@ pages. The
 and deploys to GitHub Pages; it needs Pages set to "GitHub Actions" as its
 source in the repository settings. `site_pages.py` writes the front page
 (the viewer with one hotspot per callout of the hero view, numbered as the
-overlay numbers them, and the clickable SVG for browsers without WebGL),
+overlay numbers them, or the clickable SVG where WebGL is missing, where the
+viewer fails to load and in print: an inline script picks one),
 `boards.md`, `wiring.md` and `operate.md`; `pages.py` writes the component and
 station pages. Markdown links are written relative to each page, so the same
 files read on GitHub and on the site. GitHub Pages serves every file with a

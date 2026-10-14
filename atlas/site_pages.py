@@ -9,8 +9,10 @@ from the render pipeline with the atlas finishes, `pixi run model`; the
 source glTF has only Inventor's appearance names) in Google's <model-viewer>
 with one hotspot per part that has a callout on the hero render, at the
 part's centre from docs/renders/hotspots/rig-iso.json and numbered as the
-overlay numbers it, and below it the clickable SVG overlay for readers
-without WebGL.
+overlay numbers it. The clickable SVG overlay stands in for it where WebGL
+or custom elements are missing, where the viewer fails to load, and in
+print: an inline script tests for WebGL before the drawing is parsed and
+marks <html class="webgl">, and the stylesheet shows one or the other.
 The model and overlay URLs carry a content hash (`?v=`), so a browser that
 cached the old file (GitHub Pages allows ten minutes, and a reload does not
 refetch what an <object> embeds) fetches the new one. The overlay's tag is
@@ -42,8 +44,24 @@ def index(reg, by_id):
     L = ["# The joystick rig", "",
          "Two motorised joysticks for a head-fixed mouse, each driven by its own",
          "controller board under pyControl. This site is the map: turn the model,",
-         "click a part, and its page says what it is, which connector and circuit it",
-         "meets, and which firmware drives it. The numbers match the drawing below", "the model.", "",
+         "click a numbered part, and its page says what it is, which connector and",
+         "circuit it meets, and which firmware drives it. The table below the picture", "names the numbers.", "",
+         # One picture, not two: the viewer where WebGL and custom elements work,
+         # the drawing otherwise and in print. The test runs before the drawing
+         # is parsed, so a WebGL browser does not fetch it; a viewer that fails
+         # to load (script blocked, context lost) falls back to the drawing.
+         '<div class="rig-picture">',
+         "<script>",
+         "(function(){try{var c=document.createElement('canvas');if('customElements' in window&&(c.getContext('webgl2')||c.getContext('webgl')))document.documentElement.classList.add('webgl');}catch(e){}})();",
+         "</script>",
+         "<style>",
+         ".rig-3d{display:none}html.webgl .rig-3d{display:block}html.webgl .rig-2d{display:none}",
+         "@media print{.rig-3d{display:none !important}.rig-2d{display:block !important}}",
+         ".rig-picture .hint{font-size:.8em;opacity:.75;margin:.4em 0 0}",
+         ".hotspot{width:22px;height:22px;border-radius:11px;border:2px solid #fff;background:#d9480f;color:#fff;font:bold 11px sans-serif;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.4)}",
+         ".hotspot:hover{background:#a63a0b}",
+         "</style>",
+         '<div class="rig-3d">',
          f'<model-viewer id="rig" src="model/mouse-joysticks.glb?v={glb_v}" alt="The two-joystick assembly" camera-controls',
          ' camera-orbit="-55deg 70deg auto" field-of-view="25deg" shadow-intensity="0.6" exposure="1.1"',
          ' style="width:100%;height:540px;background:#fff;border-radius:8px">']
@@ -52,16 +70,21 @@ def index(reg, by_id):
         L.append(f'  <button class="hotspot" slot="hotspot-{e["id"]}" data-position="{x} {y} {z}" data-normal="0 1 0"'
                  f' data-href="components/{e["id"]}/" title="{e["name"]}">{i}</button>')
     L += ["</model-viewer>",
+          '<p class="hint">Drag to turn, scroll to zoom; the numbers are links.</p>',
           "<script>",
-          "document.querySelectorAll('#rig .hotspot').forEach(b => b.addEventListener('click', () => { location.href = b.dataset.href; }));",
+          "(function(){var mv=document.getElementById('rig');",
+          "document.querySelectorAll('#rig .hotspot').forEach(function(b){b.addEventListener('click',function(){location.href=b.dataset.href;});});",
+          "var fallback=function(){document.documentElement.classList.remove('webgl');};",
+          "mv.addEventListener('error',fallback);",
+          "var t=setTimeout(fallback,20000);",
+          "if(window.customElements)customElements.whenDefined('model-viewer').then(function(){clearTimeout(t);});})();",
           "</script>",
-          "<style>",
-          ".hotspot{width:22px;height:22px;border-radius:11px;border:2px solid #fff;background:#d9480f;color:#fff;font:bold 11px sans-serif;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.4)}",
-          ".hotspot:hover{background:#a63a0b}",
-          "</style>", "",
-          "The same view as a drawing, for a browser without WebGL or for printing;",
-          "the numbers are links:", "",
-          f'<object data="renders/rig-iso.svg?v={svg_v}" type="image/svg+xml" style="width:100%"></object>', "",
+          "</div>",
+          '<div class="rig-2d">',
+          f'<object data="renders/rig-iso.svg?v={svg_v}" type="image/svg+xml" style="width:100%"></object>',
+          '<p class="hint">The numbers are links; in a browser with WebGL this picture is a model that turns.</p>',
+          "</div>",
+          "</div>", "",
           "| # | Part | | # | Part |", "| ---: | --- | --- | ---: | --- |"]
     half = (len(items) + 1) // 2
     for k in range(half):

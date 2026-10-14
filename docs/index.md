@@ -2,10 +2,22 @@
 
 Two motorised joysticks for a head-fixed mouse, each driven by its own
 controller board under pyControl. This site is the map: turn the model,
-click a part, and its page says what it is, which connector and circuit it
-meets, and which firmware drives it. The numbers match the drawing below
-the model.
+click a numbered part, and its page says what it is, which connector and
+circuit it meets, and which firmware drives it. The table below the picture
+names the numbers.
 
+<div class="rig-picture">
+<script>
+(function(){try{var c=document.createElement('canvas');if('customElements' in window&&(c.getContext('webgl2')||c.getContext('webgl')))document.documentElement.classList.add('webgl');}catch(e){}})();
+</script>
+<style>
+.rig-3d{display:none}html.webgl .rig-3d{display:block}html.webgl .rig-2d{display:none}
+@media print{.rig-3d{display:none !important}.rig-2d{display:block !important}}
+.rig-picture .hint{font-size:.8em;opacity:.75;margin:.4em 0 0}
+.hotspot{width:22px;height:22px;border-radius:11px;border:2px solid #fff;background:#d9480f;color:#fff;font:bold 11px sans-serif;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.hotspot:hover{background:#a63a0b}
+</style>
+<div class="rig-3d">
 <model-viewer id="rig" src="model/mouse-joysticks.glb?v=8803bd427600" alt="The two-joystick assembly" camera-controls
  camera-orbit="-55deg 70deg auto" field-of-view="25deg" shadow-intensity="0.6" exposure="1.1"
  style="width:100%;height:540px;background:#fff;border-radius:8px">
@@ -25,18 +37,21 @@ the model.
   <button class="hotspot" slot="hotspot-linear-stage" data-position="-0.0282 0.0153 0.0893" data-normal="0 1 0" data-href="components/linear-stage/" title="Linear stage">14</button>
   <button class="hotspot" slot="hotspot-rotation-lock" data-position="-0.0127 0.004 0.0926" data-normal="0 1 0" data-href="components/rotation-lock/" title="Rotation indicator and lock">15</button>
 </model-viewer>
+<p class="hint">Drag to turn, scroll to zoom; the numbers are links.</p>
 <script>
-document.querySelectorAll('#rig .hotspot').forEach(b => b.addEventListener('click', () => { location.href = b.dataset.href; }));
+(function(){var mv=document.getElementById('rig');
+document.querySelectorAll('#rig .hotspot').forEach(function(b){b.addEventListener('click',function(){location.href=b.dataset.href;});});
+var fallback=function(){document.documentElement.classList.remove('webgl');};
+mv.addEventListener('error',fallback);
+var t=setTimeout(fallback,20000);
+if(window.customElements)customElements.whenDefined('model-viewer').then(function(){clearTimeout(t);});})();
 </script>
-<style>
-.hotspot{width:22px;height:22px;border-radius:11px;border:2px solid #fff;background:#d9480f;color:#fff;font:bold 11px sans-serif;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.4)}
-.hotspot:hover{background:#a63a0b}
-</style>
-
-The same view as a drawing, for a browser without WebGL or for printing;
-the numbers are links:
-
+</div>
+<div class="rig-2d">
 <object data="renders/rig-iso.svg?v=9c193e4600fc" type="image/svg+xml" style="width:100%"></object>
+<p class="hint">The numbers are links; in a browser with WebGL this picture is a model that turns.</p>
+</div>
+</div>
 
 | # | Part | | # | Part |
 | ---: | --- | --- | ---: | --- |
