@@ -8,7 +8,7 @@ the model.
 
 <model-viewer id="rig" src="model/mouse-joysticks.glb" alt="The two-joystick assembly" camera-controls
  camera-orbit="-55deg 70deg auto" field-of-view="25deg" shadow-intensity="0.6" exposure="1.1"
- style="width:100%;height:540px;background:#eef0f3;border-radius:8px">
+ style="width:100%;height:540px;background:#fff;border-radius:8px">
   <button class="hotspot" slot="hotspot-lever" data-position="-0.035 0.1121 0.0121" data-normal="0 1 0" data-href="components/lever/" title="Joystick lever">1</button>
   <button class="hotspot" slot="hotspot-gear-train" data-position="-0.0137 0.0603 0.0204" data-normal="0 1 0" data-href="components/gear-train/" title="Spur gear pair">2</button>
   <button class="hotspot" slot="hotspot-motor-mount-plate" data-position="-0.0141 0.0658 0.0306" data-normal="0 1 0" data-href="components/motor-mount-plate/" title="Motor mount plate">3</button>
@@ -57,6 +57,8 @@ the numbers are links:
 - [Wiring](wiring.md): harnesses, leads and the cables between the devices.
 - [Operate](operate.md): how a session runs, and where the operating guide is.
 - [Mechanical bill of materials](bom-mechanical.md) and [the model](model.md).
+- [The manual](https://github.com/peterpolidoro/mouse-joysticks-mech/releases): one PDF of these pages with the boards' and the firmware's
+  documentation at their tagged revisions, attached to each release of the repository.
 
 The mechanical design is Sam Jager's (Janelia Research Campus); the boards,
 firmware and this documentation are Peter Polidoro's. Model and documents are

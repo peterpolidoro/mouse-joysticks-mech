@@ -45,6 +45,29 @@ boards:
     file: atlas/boards/camera-gpio-interface-pcb.glb
     instances: []        # not placed in the mechanical renders; it sits elsewhere on the rig
 
+# KiCad's glTF export needs fixing up for a render: its silkscreen is one
+# flat near-white mesh of the legend the size of the board (kept: once the
+# white cap tames it, it reads as the legend; `drop_silkscreen_faces: true`
+# removes it), its pure-white part bodies glare (capped), and the FFC sockets
+# have no library model (a box the size of the courtyard stands in, from the
+# board repository's docs/generated/mechanical/connectors.csv: millimetres
+# from the board centre, X right, Y up, on the component side).
+board_fixes:
+  drop_silkscreen_faces: false
+  white_cap: 0.70
+  # `mesh` is the library's own STEP of the socket, tessellated to OBJ once
+  # (atlas/boards/PROVENANCE.md); `rotation_deg` is the footprint's rotation
+  # on the board; without `mesh` a box of the courtyard's size is used.
+  proxies:
+    joystick-board:
+      - {name: J1301 FFC socket, x_mm: 0.0, y_mm: -36.0, rotation_deg: 180, mesh: atlas/boards/FH12-50S-0.5SVA-54.obj,
+         looks_by_name: {"Housing*": beige-plastic, "Actuator*": black-plastic, "Leads*": stainless, "Fitting*": stainless},
+         w_mm: 29.5, h_mm: 5.6, height_mm: 3.6, look: beige-plastic}
+    camera-board:
+      - {name: J501 FFC socket, x_mm: 44.0, y_mm: -4.0, rotation_deg: 270, mesh: atlas/boards/FH12-50S-0.5SVA-54.obj,
+         looks_by_name: {"Housing*": beige-plastic, "Actuator*": black-plastic, "Leads*": stainless, "Fitting*": stainless},
+         w_mm: 5.6, h_mm: 29.5, height_mm: 3.6, look: beige-plastic}
+
 explode:
   step: 0.025            # metres per unit of `explode.order` in the registry
   factors: [0.25, 0.5, 1.0]
@@ -59,20 +82,22 @@ render:
   long_side_px: 1600
   hero_long_side_px: 2400
   preview_long_side_px: 800
-  film_transparent: false
+  film_transparent: true      # the backdrop is the page's; a shadow catcher keeps the contact shadows
   view_transform: AgX
   look: "AgX - Medium High Contrast"
   exposure: 0.0
   # A studio: three area lights placed relative to the subject's bounding
-  # sphere (radius R), a neutral world for ambient fill and reflections, and a
-  # matte floor just under the lowest visible part so every view has contact
-  # shadows. Powers are for R = 0.2 m and scale with R squared.
-  world: {color: [0.42, 0.43, 0.45], strength: 0.45}
-  floor: {color: [0.46, 0.47, 0.49], roughness: 0.9, size_factor: 40}
+  # sphere (radius R), a darkish neutral world so polished metal reflects
+  # mid-grey rather than white, and a floor just under the lowest visible
+  # part: a shadow catcher when the film is transparent, so the contact
+  # shadows survive onto whatever background the page has. Powers are for
+  # R = 0.2 m and scale with R squared.
+  world: {color: [0.22, 0.23, 0.25], strength: 1.0}
+  floor: {color: [0.46, 0.47, 0.49], roughness: 0.9, size_factor: 40, shadow_catcher: true}
   studio:
     key:  {direction: [-1.0, 1.3, 0.7], distance: 3.0, size: 2.0, watts: 26}
-    fill: {direction: [1.2, 0.6, 0.9], distance: 3.5, size: 3.0, watts: 9}
-    rim:  {direction: [0.4, 1.1, -1.3], distance: 3.0, size: 1.5, watts: 14}
+    fill: {direction: [1.2, 0.6, 0.9], distance: 3.5, size: 3.0, watts: 12}
+    rim:  {direction: [0.4, 1.1, -1.3], distance: 3.0, size: 1.5, watts: 16}
   # Isolation views: the subject keeps its looks, everything else becomes an
   # unlit flat grey silhouette, and Freestyle draws outlines: a dark, thicker
   # line around the subject, a thin light one around the context.
@@ -86,14 +111,15 @@ render:
   # with several finishes), else the Inventor appearance name through
   # `material_looks`. The board models keep their own KiCad materials.
   looks:
-    aluminium:      {base: [0.70, 0.71, 0.73], metallic: 1.0, roughness: 0.38}
-    stainless:      {base: [0.62, 0.62, 0.64], metallic: 1.0, roughness: 0.26}
+    aluminium:      {base: [0.60, 0.61, 0.63], metallic: 1.0, roughness: 0.36}
+    stainless:      {base: [0.54, 0.54, 0.56], metallic: 1.0, roughness: 0.24}
     black-anodized: {base: [0.035, 0.035, 0.040], metallic: 0.6, roughness: 0.42}
     black-plastic:  {base: [0.020, 0.020, 0.022], metallic: 0.0, roughness: 0.48}
     grey-plastic:   {base: [0.30, 0.31, 0.33], metallic: 0.0, roughness: 0.55}
     blue-anodized:  {base: [0.05, 0.12, 0.45], metallic: 0.5, roughness: 0.40}
     brass:          {base: [0.78, 0.56, 0.20], metallic: 1.0, roughness: 0.35}
     label-white:    {base: [0.88, 0.88, 0.86], metallic: 0.0, roughness: 0.75}
+    beige-plastic:  {base: [0.62, 0.55, 0.42], metallic: 0.0, roughness: 0.55}
   material_looks:               # Inventor appearance -> look, the fallback
     PolishedBrushedVersion11: aluminium
     AluminumPolished: aluminium
@@ -134,6 +160,10 @@ views:
   - id: rig-side
     subject: all
     camera: {kind: ortho, direction: [0, 0, 1], fill: 0.92}
+  - id: boards-in-place
+    subject: boards
+    boards: true
+    camera: {kind: perspective, direction: [-1.0, 0.35, 0.55], fill: 0.80, aspect: [3, 2]}
   - id: station-iso
     subject: station:right
     camera: {kind: perspective, direction: [-1.0, 0.6, 0.9], fill: 0.88, aspect: [4, 3]}

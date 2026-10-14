@@ -1,0 +1,145 @@
+# The rig manual: which documents go in, in reading order.
+#
+# `manual/build.py` reads this, fetches every document at the named revision,
+# rewrites its images and links so they work inside one PDF, and typesets the
+# whole with pandoc and typst. A document is `<repository>@<ref>:<path>`;
+# `worktree` as the ref means this checkout's working tree (so a tagged
+# release of this repository builds its own pages at the tag). The other
+# repositories are read from the sibling checkouts named below when they are
+# there, otherwise from GitHub at the ref, which is what the release workflow
+# does.
+#
+# Keep the refs at the citable tags. The firmware's documentation pages were
+# written after `v1.0.0`, so the manual reads them at the commit that added
+# them until the next tag.
+
+title: The mouse joystick rig
+subtitle: Mechanics, boards, firmware and protocol, assembled from the repositories
+date: auto                     # ISO date of the build, or a fixed date
+output: mouse-joystick-rig-manual-{date}.pdf
+cover: mouse-joysticks-mech@worktree:docs/renders/rig-iso.png     # the figure under the title
+cover_caption: The two-joystick assembly, rendered from the model
+
+repositories:
+  mouse-joysticks-mech:
+    github: peterpolidoro/mouse-joysticks-mech
+    local: .
+  mouse-joystick-pcb:
+    github: peterpolidoro/mouse-joystick-pcb
+    local: ../mouse-joystick-pcb
+  camera-gpio-interface-pcb:
+    github: peterpolidoro/camera-gpio-interface-pcb
+    local: ../camera-gpio-interface-pcb
+  mouse-joystick-firm:
+    github: peterpolidoro/mouse-joystick-firm
+    local: ../mouse-joystick-firm
+
+# Shorthands for the refs, so a tag moves in one place.
+refs:
+  mech: worktree
+  pcb: v1.0
+  camera: d0a9a7e                # the board is v1.0 (5ddb425); its pages came in the commits after it
+  firm: 3d14f45                  # the documentation commit after v1.0.0
+
+parts:
+  - title: Operate
+    intro: >-
+      What a session is and where the full operating guide lives. The
+      researcher guide itself is in the rig's repository, which is private to
+      the lab; this part points at it rather than copying it.
+    documents:
+      - mouse-joysticks-mech@{mech}:docs/operate.md
+
+  - title: What the rig is made of
+    intro: >-
+      The two-joystick assembly part by part, from the registry that also
+      drives the atlas site: each page says what the part is, which connector
+      and circuit it meets and which firmware drives it.
+    documents:
+      - mouse-joysticks-mech@{mech}:docs/station.md
+      - {source: "mouse-joysticks-mech@{mech}:docs/components/README.md", title: The components}
+      - mouse-joysticks-mech@{mech}:docs/components/lever.md
+      - mouse-joysticks-mech@{mech}:docs/components/gear-train.md
+      - mouse-joysticks-mech@{mech}:docs/components/motor.md
+      - mouse-joysticks-mech@{mech}:docs/components/encoder.md
+      - mouse-joysticks-mech@{mech}:docs/components/limit-switch.md
+      - mouse-joysticks-mech@{mech}:docs/components/brake.md
+      - mouse-joysticks-mech@{mech}:docs/components/torque-sensor.md
+      - mouse-joysticks-mech@{mech}:docs/components/shaft-couplers.md
+      - mouse-joysticks-mech@{mech}:docs/components/lever-axis-bearings.md
+      - mouse-joysticks-mech@{mech}:docs/components/motor-mount-plate.md
+      - mouse-joysticks-mech@{mech}:docs/components/torque-sensor-plate.md
+      - mouse-joysticks-mech@{mech}:docs/components/frame-standoffs.md
+      - mouse-joysticks-mech@{mech}:docs/components/stage-interface-plate.md
+      - mouse-joysticks-mech@{mech}:docs/components/linear-stage.md
+      - mouse-joysticks-mech@{mech}:docs/components/rotation-plate.md
+      - mouse-joysticks-mech@{mech}:docs/components/rotation-lock.md
+      - mouse-joysticks-mech@{mech}:docs/components/dual-base-plate.md
+      - mouse-joysticks-mech@{mech}:docs/components/servocity-parts.md
+      - mouse-joysticks-mech@{mech}:docs/components/fasteners.md
+      - mouse-joysticks-mech@{mech}:docs/wiring.md
+      - mouse-joysticks-mech@{mech}:docs/components/harness.md
+      - mouse-joysticks-mech@{mech}:docs/components/brake-lead.md
+      - mouse-joysticks-mech@{mech}:docs/components/torque-lead.md
+      - mouse-joysticks-mech@{mech}:docs/components/rj45-link.md
+      - mouse-joysticks-mech@{mech}:docs/components/analog-outputs.md
+      - mouse-joysticks-mech@{mech}:docs/components/supply-36v.md
+      - mouse-joysticks-mech@{mech}:docs/components/pycontrol-controller.md
+      - mouse-joysticks-mech@{mech}:docs/components/onebox.md
+      - mouse-joysticks-mech@{mech}:docs/components/cameras.md
+      - mouse-joysticks-mech@{mech}:docs/components/acquisition-pc.md
+      - mouse-joysticks-mech@{mech}:docs/boards.md
+      - mouse-joysticks-mech@{mech}:docs/components/joystick-board.md
+      - mouse-joysticks-mech@{mech}:docs/components/camera-board.md
+
+  - title: The joystick controller board
+    intro: >-
+      The board repository's own pages at the fabricated revision: what the
+      board is, where it sits in the rig, the two harnesses, every connector
+      and net, and the power architecture.
+    documents:
+      - {source: "mouse-joystick-pcb@{pcb}:README.md", title: The board}
+      - mouse-joystick-pcb@{pcb}:docs/rig-layout.md
+      - mouse-joystick-pcb@{pcb}:docs/harness-pinouts.md
+      - mouse-joystick-pcb@{pcb}:docs/interface-map.md
+      - mouse-joystick-pcb@{pcb}:docs/power.md
+
+  - title: The camera interface board
+    intro: >-
+      The camera GPIO interface board, from its repository.
+    documents:
+      - {source: "camera-gpio-interface-pcb@{camera}:README.md", title: The board}
+      - camera-gpio-interface-pcb@{camera}:docs/interface-map.md
+
+  - title: Firmware and protocol
+    intro: >-
+      What runs where, which code drives which circuit, the line protocol
+      between the controller and a board, and the pyControl side.
+    documents:
+      - mouse-joystick-firm@{firm}:docs/architecture.md
+      - mouse-joystick-firm@{firm}:docs/circuit-code-map.md
+      - mouse-joystick-pcb@{pcb}:docs/uart-protocol.md
+      - mouse-joystick-pcb@{pcb}:docs/pycontrol-interface.md
+      - {source: "mouse-joystick-firm@{firm}:pycontrol/README.md", title: The pyControl host side}
+      - mouse-joystick-firm@{firm}:docs/pycontrol-api.md
+      - mouse-joystick-firm@{firm}:docs/glossary.md
+
+  - title: Rebuild and replace
+    intro: >-
+      Building and flashing the firmware, the fabrication outputs the boards
+      were made from, and the development records.
+    documents:
+      - {source: "mouse-joystick-firm@{firm}:README.md", title: The firmware repository}
+      - {source: "mouse-joystick-firm@{firm}:docs/development.md", title: Firmware development}
+      - {source: "mouse-joystick-pcb@{pcb}:docs/generated/README.md", title: Joystick board, generated documentation}
+      - {source: "mouse-joystick-pcb@{pcb}:docs/development.md", title: Joystick board development}
+      - {source: "camera-gpio-interface-pcb@{camera}:docs/generated/README.md", title: Camera board, generated documentation}
+      - camera-gpio-interface-pcb@{camera}:docs/fabrication-log.md
+
+  - title: Appendices
+    documents:
+      - mouse-joysticks-mech@{mech}:docs/bom-mechanical.md
+      - mouse-joystick-pcb@{pcb}:docs/pycontrol-port-pinout.md
+      - {source: "mouse-joystick-pcb@{pcb}:docs/generated/mechanical/board-dimensions.md", title: Joystick board dimensions}
+      - {source: "camera-gpio-interface-pcb@{camera}:docs/generated/mechanical/board-dimensions.md", title: Camera board dimensions}
+      - mouse-joystick-firm@{firm}:evidence/README.md

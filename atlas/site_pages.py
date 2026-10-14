@@ -21,6 +21,7 @@ from overlay import select_items  # noqa: E402
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PCB = "https://github.com/peterpolidoro/mouse-joystick-pcb"
 CAM = "https://github.com/peterpolidoro/camera-gpio-interface-pcb"
+MECH = "https://github.com/peterpolidoro/mouse-joysticks-mech"
 FIRM = "https://github.com/peterpolidoro/mouse-joystick-firm"
 RIG = "https://github.com/sourishmukh/joystick-rig"
 RAW = "https://raw.githubusercontent.com/peterpolidoro"
@@ -36,7 +37,7 @@ def index(reg, by_id):
          "meets, and which firmware drives it. The numbers match the drawing below", "the model.", "",
          '<model-viewer id="rig" src="model/mouse-joysticks.glb" alt="The two-joystick assembly" camera-controls',
          ' camera-orbit="-55deg 70deg auto" field-of-view="25deg" shadow-intensity="0.6" exposure="1.1"',
-         ' style="width:100%;height:540px;background:#eef0f3;border-radius:8px">']
+         ' style="width:100%;height:540px;background:#fff;border-radius:8px">']
     for i, e in enumerate(items, 1):
         x, y, z = e["centre_gltf"]
         L.append(f'  <button class="hotspot" slot="hotspot-{e["id"]}" data-position="{x} {y} {z}" data-normal="0 1 0"'
@@ -65,7 +66,9 @@ def index(reg, by_id):
           "- [Boards](boards.md): the two circuit boards, with their own documentation.",
           "- [Wiring](wiring.md): harnesses, leads and the cables between the devices.",
           "- [Operate](operate.md): how a session runs, and where the operating guide is.",
-          "- [Mechanical bill of materials](bom-mechanical.md) and [the model](model.md).", "",
+          "- [Mechanical bill of materials](bom-mechanical.md) and [the model](model.md).",
+          f"- [The manual]({MECH}/releases): one PDF of these pages with the boards' and the firmware's",
+          "  documentation at their tagged revisions, attached to each release of the repository.", "",
           "The mechanical design is Sam Jager's (Janelia Research Campus); the boards,",
           "firmware and this documentation are Peter Polidoro's. Model and documents are",
           "CC-BY-SA-4.0; see the repository."]
@@ -94,6 +97,7 @@ def boards(reg):
               f"| Generated documentation | [schematic, renders, BOM, geometry]({base}/blob/{tag}/docs/generated/README.md) |",
               f"| Fabrication | [the package the boards were ordered from]({base}/tree/{tag}/fab) |", ""]
         if repo == "mouse-joystick-pcb":
+            L += ["![The two boards in place under their stations](renders/boards-in-place.png)", ""]
             L += [f"Also: the [UART protocol]({base}/blob/{tag}/docs/uart-protocol.md) pyControl speaks to it, the",
                   f"[harness pinouts]({base}/blob/{tag}/docs/harness-pinouts.md), [power]({base}/blob/{tag}/docs/power.md),",
                   f"and the [bring-up log]({base}/blob/{tag}/docs/bringup-log.md) with every measurement by board serial.",
@@ -114,7 +118,8 @@ def wiring(reg, by_id):
          f"[interface map]({PCB}/blob/v1.0/docs/interface-map.md),",
          f"[pyControl port pinout]({PCB}/blob/v1.0/docs/pycontrol-port-pinout.md)), the rig-level",
          f"cabling of both rigs in the rig's repository ([Hardware/rig-connections.md]({RIG}/blob/main/Hardware/rig-connections.md),",
-         "which is private to the lab). WireViz drawings of each harness are planned.", "",
+         f"which is private to the lab, with its WireViz cable drawing [Hardware/cables.svg]({RIG}/blob/main/Hardware/cables.svg):",
+         "every run between devices and the cable BOM). WireViz drawings of the two station harnesses are planned in the board repository.", "",
          "| Cable | Board connector | Notes | Documents |", "| --- | --- | --- | --- |"]
     for e in reg:
         if e["kind"] != "cable":

@@ -19,6 +19,8 @@ One per station: RP2040, TMC5130A driver, brake current sink, torque bridge, ang
 | Generated documentation | [schematic, renders, BOM, geometry](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/generated/README.md) |
 | Fabrication | [the package the boards were ordered from](https://github.com/peterpolidoro/mouse-joystick-pcb/tree/v1.0/fab) |
 
+![The two boards in place under their stations](renders/boards-in-place.png)
+
 Also: the [UART protocol](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/uart-protocol.md) pyControl speaks to it, the
 [harness pinouts](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/harness-pinouts.md), [power](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/power.md),
 and the [bring-up log](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/bringup-log.md) with every measurement by board serial.

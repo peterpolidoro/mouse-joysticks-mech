@@ -85,6 +85,7 @@ def build(scene, registry, gltf):
         "stations": scene["stations"],
         "rig_nodes": scene.get("rig_nodes", []),
         "boards": scene.get("boards", {}),
+        "board_fixes": scene.get("board_fixes", {}),
         "explode": scene["explode"],
         "render": scene["render"],
         "entries": entries,

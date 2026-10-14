@@ -6,7 +6,8 @@ repository ([harness pinouts](https://github.com/peterpolidoro/mouse-joystick-pc
 [interface map](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/interface-map.md),
 [pyControl port pinout](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/pycontrol-port-pinout.md)), the rig-level
 cabling of both rigs in the rig's repository ([Hardware/rig-connections.md](https://github.com/sourishmukh/joystick-rig/blob/main/Hardware/rig-connections.md),
-which is private to the lab). WireViz drawings of each harness are planned.
+which is private to the lab, with its WireViz cable drawing [Hardware/cables.svg](https://github.com/sourishmukh/joystick-rig/blob/main/Hardware/cables.svg):
+every run between devices and the cable BOM). WireViz drawings of the two station harnesses are planned in the board repository.
 
 | Cable | Board connector | Notes | Documents |
 | --- | --- | --- | --- |

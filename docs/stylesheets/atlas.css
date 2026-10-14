@@ -1,0 +1,3 @@
+/* The renders have transparent backgrounds; give them a white card in both themes. */
+.md-content img, .md-content object { background: #fff; border-radius: 6px; padding: 6px; box-sizing: border-box; }
+.md-content model-viewer { background: #fff; }

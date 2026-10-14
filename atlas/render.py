@@ -88,6 +88,7 @@ class Scene:
         self.mech = import_glb(os.path.join(root, job["model"]))
         log(f"mechanism: {len(self.mech)} objects, {sum(1 for o in self.mech if o.type == 'MESH')} meshes")
         self.station_of = {}
+        self.looks = {}
         roots = {base(s["root"]): name for name, s in job["stations"].items()}
         for o in self.mech:
             st = None
@@ -111,6 +112,7 @@ class Scene:
                 raise SystemExit(f"no Blender object for registry entry {e['id']}")
             self.entry_objs[e["id"]] = tops
         self.board_objs = []
+        self.always_hidden = set()   # hidden at load (dropped faces); restore() keeps them so
         for bid, b in job["boards"].items():
             path = os.path.join(root, b["file"])
             if not os.path.exists(path) or not b.get("instances"):
@@ -133,17 +135,104 @@ class Scene:
                 for o in meshes_under(tops):
                     self.station_of[o] = inst["station"]
                     self.board_objs.append(o)
+                self.fix_board(bid, e, tops, inst["station"])
                 log(f"board {bid} at {inst['station']}: {len(tops)} top nodes, size {[round(v, 3) for v in (mx - mn)]}")
         bpy.context.view_layer.update()
         self.all_objs = [o for o in bpy.data.objects if o.type == "MESH"]
         self.orig_matrix = {o: o.matrix_world.copy() for o in bpy.data.objects}
-        self.looks = {}
         self.apply_looks(job["render"])
         self.setup_render()
         self.setup_studio()
         self.setup_isolation()
 
     # ------------------------------------------------------------ materials
+
+    def fix_board(self, bid, root, tops, station):
+        """KiCad's export, made presentable: drop the silkscreen face, cap pure
+        white bodies, and stand in for a connector that has no model.
+
+        Frames: the glTF importer has already turned the board's Y-up frame
+        into Blender's Z-up, so in the instance's local space the board lies in
+        XY with Z its normal, and the drawings' frame (centre origin, X right,
+        Y up, millimetres) maps onto it by translation and scale alone."""
+        fx = self.job.get("board_fixes", {})
+        meshes = meshes_under(tops)
+        body = None
+        for o in meshes:
+            bb = [Vector(c) for c in o.bound_box]
+            lo = Vector((min(v.x for v in bb), min(v.y for v in bb), min(v.z for v in bb)))
+            hi = Vector((max(v.x for v in bb), max(v.y for v in bb), max(v.z for v in bb)))
+            size = hi - lo
+            if size.x > 0.09 and size.y > 0.05 and size.z > 0.001:
+                body = (lo, hi)
+            if fx.get("drop_silkscreen_faces") and size.x > 0.09 and size.y > 0.05 and size.z < 0.0005:
+                mats = [sl.material for sl in o.material_slots if sl.material]
+                if mats and all(self._is_white_ish(m) for m in mats):
+                    o.hide_render = True
+                    self.always_hidden.add(o)
+                    self.board_objs.remove(o)
+                    self.station_of.pop(o, None)
+                    log(f"board {bid}: dropped the silkscreen face {o.name}")
+        cap = fx.get("white_cap")
+        if cap:
+            for o in meshes:
+                for sl in o.material_slots:
+                    m = sl.material
+                    if m and m.use_nodes:
+                        for node in m.node_tree.nodes:
+                            if node.type == "BSDF_PRINCIPLED":
+                                c = node.inputs["Base Color"].default_value
+                                if min(c[0], c[1], c[2]) > 0.95:
+                                    node.inputs["Base Color"].default_value = (cap, cap, cap, 1)
+        if body is None:
+            log(f"board {bid}: no body mesh found, no proxies"); return
+        lo, hi = body
+        centre = Vector(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, hi.z))  # top face centre
+        for px in fx.get("proxies", {}).get(bid, []):
+            at = centre + Vector((px["x_mm"] / 1000, px["y_mm"] / 1000, 0))
+            objs = []
+            if px.get("mesh"):
+                before = set(bpy.data.objects)
+                # KiCad's model frame is X right, Y up the board, Z the normal: Blender's, so no axis swap
+                bpy.ops.wm.obj_import(filepath=os.path.join(self.root, px["mesh"]), forward_axis="Y", up_axis="Z", global_scale=0.001, use_split_objects=True, use_split_groups=True)
+                objs = [o for o in bpy.data.objects if o not in before and o.type == "MESH"]
+                holder = bpy.data.objects.new(f"proxy:{px['name']}", None)
+                bpy.context.scene.collection.objects.link(holder)
+                for o in objs:
+                    o.parent = holder
+                    look = px.get("look", "black-plastic")
+                    for pat, lk in (px.get("looks_by_name") or {}).items():
+                        if fnmatch.fnmatchcase(base(o.name), pat):
+                            look = lk
+                    o.data.materials.clear(); o.data.materials.append(self.look_material(look))
+                holder.parent = root
+                holder.location = at
+                holder.rotation_euler = (0, 0, math.radians(px.get("rotation_deg", 0)))
+                shapes = [o for o in objs]
+            else:
+                w, h, ht = px["w_mm"] / 1000, px["h_mm"] / 1000, px["height_mm"] / 1000
+                me = bpy.data.meshes.new(f"proxy:{px['name']}")
+                vs = [(at.x + sx * w / 2, at.y + sy * h / 2, at.z + sz * ht) for sz in (0, 1) for sy in (-1, 1) for sx in (-1, 1)]
+                fs = [(0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)]
+                me.from_pydata(vs, [], fs)
+                pr = bpy.data.objects.new(f"proxy:{px['name']}", me)
+                bpy.context.scene.collection.objects.link(pr)
+                pr.parent = root
+                me.materials.append(self.look_material(px.get("look", "black-plastic")))
+                shapes = [pr]
+            for o in shapes:
+                self.station_of[o] = station; self.board_objs.append(o)
+            log(f"board {bid}: stand-in for {px['name']} ({'mesh' if px.get('mesh') else 'box'}, {len(shapes)} objects)")
+
+    @staticmethod
+    def _is_white_ish(m):
+        if not m.use_nodes:
+            return False
+        for node in m.node_tree.nodes:
+            if node.type == "BSDF_PRINCIPLED":
+                c = node.inputs["Base Color"].default_value
+                return min(c[0], c[1], c[2]) > 0.9
+        return False
 
     def look_material(self, name):
         """One Blender material per look, made on first use."""
@@ -275,6 +364,9 @@ class Scene:
         me.from_pydata([(-size, -size, 0), (size, -size, 0), (size, size, 0), (-size, size, 0)], [], [(0, 1, 2, 3)])
         me.materials.append(fm)
         self.floor = bpy.data.objects.new("floor", me); scn.collection.objects.link(self.floor)
+        if f.get("shadow_catcher") and scn.render.film_transparent:
+            self.floor.is_shadow_catcher = True
+            log("floor: shadow catcher")
         log(f"studio: R={R:.3f} m, {len(self.lights)} lights, floor {size:.1f} m")
 
     def setup_isolation(self):
@@ -326,6 +418,8 @@ class Scene:
         kind, _, arg = spec.partition(":")
         if kind == "station":
             return [o for o in self.all_objs if self.station_of.get(o) in (arg, "rig")]
+        if spec == "boards":
+            return list(self.board_objs)
         if kind == "entry":
             tops = [t for t in self.entry_objs[entry] if arg in ("any", self.station_of.get(t)) or self.station_of.get(t) == "rig"]
             return meshes_under(tops)
@@ -338,7 +432,7 @@ class Scene:
         for o, m in self.orig_matrix.items():
             o.matrix_world = m
         for o in bpy.data.objects:
-            o.hide_render = False
+            o.hide_render = o in self.always_hidden
         bpy.context.view_layer.update()
 
     def explode(self, factor, station):
@@ -454,7 +548,7 @@ class Scene:
         else:
             frame_objs = subject
         long_side = r["preview_long_side_px"] if preview else (r["hero_long_side_px"] if v.get("hero") else r["long_side_px"])
-        self.place_floor(frame_objs)
+        self.place_floor(visible)   # the catcher hides what lies below it: never under the subject alone
         self.frame(frame_objs, v["camera"], long_side)
         scn = bpy.context.scene
         scn.cycles.samples = r["preview_samples"] if preview else r["samples"]

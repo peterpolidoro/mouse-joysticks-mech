@@ -114,7 +114,7 @@ def main():
              "| --- | --- | --- | ---: | ---: | ---: | ---: | --- |"]
     for r in rows:
         pn = ", ".join(f"[{p}]({VENDOR_URL[r['vendor']].format(pn=p)})" if r["vendor"] in VENDOR_URL else f"`{p}`" for p in r["part_numbers"]) or ""
-        lines.append(f"| [{r['name']}](#{r['id']}) | {r['vendor']} | {pn} | {r['qty_right']} | {r['qty_left']} | {r['qty_rig']} | {r['qty']} | {', '.join(f'`{n}`' for n in r['model_names'])} |")
+        lines.append(f"| [{r['name']}](components/{r['id']}.md) | {r['vendor']} | {pn} | {r['qty_right']} | {r['qty_left']} | {r['qty_rig']} | {r['qty']} | {', '.join(f'`{n}`' for n in r['model_names'])} |")
     qs = [(r["name"], q) for r in rows for q in r["confirm"]]
     if qs:
         lines += ["", "## To confirm", ""] + [f"- **{n}:** {q}" for n, q in qs]

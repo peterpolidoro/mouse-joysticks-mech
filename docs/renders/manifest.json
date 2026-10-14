@@ -2,9 +2,9 @@
  "inputs": {
   "mouse-joysticks.glb": "6dc022e905122071d4a025ca9623fb7e32b1aaa5f35fa638d52cf919694b71d6",
   "atlas/components.yaml": "b1851a64a01df368be779f6ea8a9e89a492e30de8f313d974e0d2a4ca98703d5",
-  "atlas/scene.yaml": "ca60d647830fad79bc6adbd5c69103adba3ad3f40974cf00f9a7c70a677a2683",
-  "atlas/build.py": "43545a0a691c0e7eb3c17e4565fead5f6b91904422495522b4ad64ff87f2218d",
-  "atlas/render.py": "9d4f170b63d7a7056419cde8d233e62a2689ff40d097503893a17886360f6809",
+  "atlas/scene.yaml": "d91d4b72fb4dfe0e93d52728e3330e3177a835973f5bfd9d7dd8925d6ec4f2a6",
+  "atlas/build.py": "595f7a111b24f0909b6346fbf14e3fac074107dde0ef91c957681bb2ec103fa2",
+  "atlas/render.py": "8180c7d54c11623a2a6f38af475a7e01c6270be8fe4d4c12c78d3fe51b63e7e8",
   "atlas/boards/mouse-joystick-pcb.glb": "7afe8a827af882fe978a3cc75d0212202d48d2f2de401cbf815295f76cbf9b65",
   "atlas/boards/camera-gpio-interface-pcb.glb": "fe40739c11c013db5be54aab0e84324e8f04a2e1ad6fc05c092738997961ccbf"
  },
@@ -14,6 +14,7 @@
   "rig-top",
   "rig-front",
   "rig-side",
+  "boards-in-place",
   "station-iso",
   "station-exploded-25",
   "station-exploded-50",

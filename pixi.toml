@@ -36,8 +36,18 @@ pyyaml = ">=6"
 bpy = ">=4.5,<4.6"
 
 [feature.render.tasks]
-render = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json docs/renders", description = "Render every view into docs/renders (about 15 minutes)" }
+render = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json docs/renders", description = "Render every view into docs/renders (about an hour)" }
 preview = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json tmp/preview --preview --views", description = "Low-quality renders of the named views into tmp/preview, e.g. `pixi run preview rig-iso,part-brake`" }
+
+[feature.manual.dependencies]
+python = ">=3.11"
+pyyaml = ">=6"
+pandoc = ">=3.6"
+typst = ">=0.13"
+
+[feature.manual.tasks]
+manual = { cmd = "python manual/build.py", description = "The PDF manual into tmp/manual/, assembled from the repositories' pages (manual/manifest.yaml); `pixi run manual --md-only` for just the Markdown" }
 
 [environments]
 render = { features = ["render"], no-default-feature = true }
+manual = { features = ["manual"], no-default-feature = true }

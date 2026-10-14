@@ -11,7 +11,8 @@ or in the generated pages is edited by hand.
 | `build.py` | reads both files and the glTF, resolves every registry pattern to node names (an unmatched pattern is an error), expands the per-part view and writes `job.json` for Blender; `--check` compares `docs/renders/manifest.json` with the inputs' hashes |
 | `render.py` | runs inside Blender (the `bpy` wheel or a Blender binary): imports the models, gives every part its finish, lights the studio, and per view sets the subject, the isolation, the explode offsets, the floor and the camera, renders a PNG and writes `docs/renders/hotspots/<view>.json` (projected pixel boxes and world centres of every registry entry) |
 | `bom.py` | the mechanical bill of materials counted from the glTF through the registry, to `docs/bom-mechanical.md` and `.csv`; `--check` lists part nodes no entry covers |
-| `boards/` | the two boards' glTF exports from their KiCad layouts, with `PROVENANCE.md` |
+| `boards/` | the two boards' glTF exports from their KiCad layouts, the FFC socket mesh that stands in for their missing model, with `PROVENANCE.md` |
+| `step2obj.py` | FreeCAD script that tessellates a STEP model to OBJ, one group per solid; made the socket mesh |
 
 ## Regenerating
 
@@ -49,10 +50,13 @@ Anything the registry does not name falls back to `material_looks`, a map
 from appearance name to look.
 
 The studio is three area lights placed on the mechanism's bounding sphere, a
-neutral world for ambient light and reflections, and a matte floor set just
-under the lowest visible part of each view, so every picture has contact
-shadows. AgX tone mapping with the medium-high-contrast look, adaptive
-sampling to 256 samples, OpenImageDenoise with albedo and normal passes.
+darkish neutral world so polished metal reflects mid-grey rather than white,
+and a floor set just under the lowest visible part of each view. The film is
+transparent and the floor a shadow catcher, so every picture carries its
+contact shadows onto whatever background the page has: white on GitHub's
+light theme and on the site, which puts each render on a white card. AgX tone
+mapping with the medium-high-contrast look, adaptive sampling to 256 samples,
+OpenImageDenoise with albedo and normal passes.
 
 An isolation view (`others: isolate`) keeps the subject in its finish, turns
 every other visible part into an unlit flat grey silhouette, and draws
@@ -88,8 +92,12 @@ files read on GitHub and on the site.
   (the linear stage, the base plate, the couplers' exact finish, the
   ServoCity hardware) are assumed aluminium. Correct the registry's `look`
   fields and re-render.
-- The boards' FFC sockets (`J1301`, `J501`) have no library 3D model and
-  are absent from the board glTFs.
+- The boards' FFC sockets (`J1301`, `J501`) carry no model in the board
+  exports; the library's STEP of the socket, tessellated once to
+  `boards/FH12-50S-0.5SVA-54.obj`, stands in (`board_fixes.proxies` in
+  `scene.yaml`). KiCad's silkscreen export is one flat near-white mesh of
+  the legend; pure-white materials, the legend included, are capped to a
+  light grey so the boards do not glare (`board_fixes.white_cap`).
 
 ## Frames
 
