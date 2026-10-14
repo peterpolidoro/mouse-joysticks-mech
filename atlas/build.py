@@ -112,7 +112,9 @@ def main():
         stale = [k for k in new if old.get(k) != new[k]] + [k for k in old if k not in new]
         if stale:
             print("renders stale; changed inputs:", *stale, sep="\n  "); return 1
-        print("renders current"); return 0
+        partial = json.load(open(man)).get("partial_renders", [])
+        print("renders current" + (f"; rendered alone since the last full render (pixi run render-views): {', '.join(partial)}" if partial else ""))
+        return 0
     if args.list:
         for e in job["entries"]:
             if "nodes" in e:

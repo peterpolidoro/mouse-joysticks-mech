@@ -7,8 +7,14 @@ the left station is its mirror image and takes the left harness.
 
 ## Exploded
 
-Parts on the lever axis move along it away from the lever; the plates, the
-stage and the base move down. Order from the registry's `explode` fields.
+Parts on the lever axis move along it: the lever and the gears forward, off the
+motor mount plate; the brake, motor, couplers, torque sensor and its plate back.
+The limit switch lifts off the plate; the stage interface plate, the linear
+stage, the rotation plate and the base move down. The order of each part is the
+registry's `explode` field; the distances come from the parts' sizes, so that
+at 100 % no two parts intersect. Fasteners, bearings and the ServoCity shaft
+hardware are omitted from these three views; the frame standoffs stay with the
+motor mount plate and the parts slide along them.
 
 ![Exploded, 25 %](renders/station-exploded-25.png)
 
@@ -18,22 +24,26 @@ stage and the base move down. Order from the registry's `explode` fields.
 
 ## Parts
 
-| Part | Order along the lever axis | Order downward |
+| Part | Order along the lever axis (negative: toward the lever) | Order downward (negative: up) |
 | --- | ---: | ---: |
-| [Joystick lever](components/lever.md) | 0 |  |
-| [Spur gear pair](components/gear-train.md) | 1 |  |
-| [Stepper motor](components/motor.md) | 2 |  |
-| [Lever-axis encoder](components/encoder.md) | 2 |  |
-| [Limit switch](components/limit-switch.md) |  | 1 |
-| [Magnetic particle brake](components/brake.md) | 3 |  |
-| [Reaction torque sensor](components/torque-sensor.md) | 5 |  |
-| [Shaft couplers](components/shaft-couplers.md) | 4 |  |
-| [Motor mount plate](components/motor-mount-plate.md) |  | 2 |
-| [Torque sensor plate](components/torque-sensor-plate.md) |  | 2 |
-| [Stage interface plate](components/stage-interface-plate.md) |  | 3 |
-| [Linear stage](components/linear-stage.md) |  | 4 |
-| [Rotation plate](components/rotation-plate.md) |  | 5 |
-| [Rotation indicator and lock](components/rotation-lock.md) |  | 5 |
-| [Dual base plate](components/dual-base-plate.md) |  | 6 |
+| [Joystick lever](components/lever.md) | -2 |  |
+| [Spur gear pair](components/gear-train.md) | -1 |  |
+| [Stepper motor](components/motor.md) | 1 |  |
+| [Lever-axis encoder](components/encoder.md) | 1 |  |
+| [Limit switch](components/limit-switch.md) |  | -1 |
+| [Magnetic particle brake](components/brake.md) | 1 |  |
+| [Reaction torque sensor](components/torque-sensor.md) | 3 |  |
+| [Shaft couplers](components/shaft-couplers.md) | 2 |  |
+| [Lever-axis bearings](components/lever-axis-bearings.md) | omitted | omitted |
+| [Motor mount plate](components/motor-mount-plate.md) | 0 |  |
+| [Torque sensor plate](components/torque-sensor-plate.md) | 4 |  |
+| [Frame standoffs and spacers](components/frame-standoffs.md) | stays | stays |
+| [Stage interface plate](components/stage-interface-plate.md) |  | 1 |
+| [Linear stage](components/linear-stage.md) |  | 2 |
+| [Rotation plate](components/rotation-plate.md) |  | 3 |
+| [Rotation indicator and lock](components/rotation-lock.md) |  | 3 |
+| [Dual base plate](components/dual-base-plate.md) |  | 4 |
+| [ServoCity shaft hardware](components/servocity-parts.md) | omitted | omitted |
+| [Fasteners](components/fasteners.md) | omitted | omitted |
 
 The [mechanical bill of materials](bom-mechanical.md) counts every part.

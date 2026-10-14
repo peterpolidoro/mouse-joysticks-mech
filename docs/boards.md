@@ -28,10 +28,13 @@ The firmware is [mouse-joystick-firm](https://github.com/peterpolidoro/mouse-joy
 [architecture page](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/docs/architecture.md) and
 [circuit-to-code map](https://github.com/peterpolidoro/mouse-joystick-firm/blob/main/docs/circuit-code-map.md) say which code drives which circuit.
 
-![Placement study](renders/rig-with-boards-iso.png)
+![Placement study, with every board of Rig 1](renders/rig-with-boards-iso.png)
 
 The boards in the placement study stand under their stations, terminal
-blocks up; where they finally mount is an enclosure decision.
+blocks up; where they finally mount is an enclosure decision. The camera
+interface board stands in their row beyond the end of the base plate only
+so that one picture shows every board of Rig 1; on the rig it sits by the
+cameras.
 
 ## Camera GPIO interface board
 

@@ -113,16 +113,30 @@ def main():
                "the left station is its mirror image and takes the left harness.", "",
                "![One station](renders/station-iso.png)", "",
                "## Exploded", "",
-               "Parts on the lever axis move along it away from the lever; the plates, the",
-               "stage and the base move down. Order from the registry's `explode` fields.", "",
+               "Parts on the lever axis move along it: the lever and the gears forward, off the",
+               "motor mount plate; the brake, motor, couplers, torque sensor and its plate back.",
+               "The limit switch lifts off the plate; the stage interface plate, the linear",
+               "stage, the rotation plate and the base move down. The order of each part is the",
+               "registry's `explode` field; the distances come from the parts' sizes, so that",
+               "at 100 % no two parts intersect. Fasteners, bearings and the ServoCity shaft",
+               "hardware are omitted from these three views; the frame standoffs stay with the",
+               "motor mount plate and the parts slide along them.", "",
                "![Exploded, 25 %](renders/station-exploded-25.png)", "",
                "![Exploded, 50 %](renders/station-exploded-50.png)", "",
                "![Exploded, 100 %](renders/station-exploded-100.png)", "",
-               "## Parts", "", "| Part | Order along the lever axis | Order downward |", "| --- | ---: | ---: |"]
+               "## Parts", "", "| Part | Order along the lever axis (negative: toward the lever) | Order downward (negative: up) |", "| --- | ---: | ---: |"]
     for e in reg:
         ex = e.get("explode")
-        if ex:
-            station.append(f"| [{e['name']}](components/{e['id']}.md) | {ex['order'] if ex['axis'] == 'z' else ''} | {ex['order'] if ex['axis'] == 'y' else ''} |")
+        if not ex:
+            continue
+        if ex.get("hide"):
+            z = y = "omitted"
+        elif ex.get("ignore"):
+            z = y = "stays"
+        else:
+            o = ex.get("order", 0)
+            z, y = (o if ex.get("axis") == "z" else "", o if ex.get("axis") == "y" else "")
+        station.append(f"| [{e['name']}](components/{e['id']}.md) | {z} | {y} |")
     station += ["", "The [mechanical bill of materials](bom-mechanical.md) counts every part."]
     (ROOT / "docs/station.md").write_text("\n".join(station) + "\n")
     print(f"wrote {len(reg)} component pages, docs/components/README.md and docs/station.md")

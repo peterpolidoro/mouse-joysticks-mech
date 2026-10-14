@@ -26,8 +26,16 @@
 #               until it exists, and the generators omit the link)
 #   firmware    files, protocol verbs and events, bring-up example in
 #               mouse-joystick-firm; the circuit-to-code map reads these
-#   explode     axis and order for the exploded view (station frame, section 6
-#               of the documentation plan); omitted = stays in place
+#   explode     axis and signed order for the exploded view (station frame,
+#               section 6 of the documentation plan): axis z runs along the
+#               lever axis, positive away from the lever, negative toward it;
+#               axis y positive is down, negative up. Entries sharing an order
+#               move together, and the offsets come from clearance between
+#               bounding boxes (render.py explode), not from a fixed step.
+#               Order 0 or omitted = stays in place (the motor mount plate is
+#               the anchor). `{hide: true}` omits the entry from the exploded
+#               views (fasteners, bearings); `{ignore: true}` keeps it in place
+#               without letting its box push the others (the frame standoffs)
 #   look        finish from scene.yaml `looks`, read off the photos of the real
 #               parts (2026-10-13), not the model's appearance names;
 #               looks_by_material / looks_by_node override it for a part with
@@ -49,7 +57,7 @@
   description: >-
     The lever the mouse holds. Rides on the lever axis at the front of the
     station; a pull moves it toward decreasing angle on both stations.
-  explode: {axis: z, order: 0}
+  explode: {axis: z, order: -2}
   render: true
   bom: true
   confirm: ["Material and finish of the lever (not in the model)."]
@@ -68,7 +76,7 @@
   firmware:
     files: [src/Conversions.hpp]
     notes: "gear ratio and microsteps per lever degree live here"
-  explode: {axis: z, order: 1}
+  explode: {axis: z, order: -1}
   render: true
   bom: true
   confirm: ["Tooth counts of the driving and driven gears, to check against src/Conversions.hpp."]
@@ -93,7 +101,7 @@
     files: [src/TmcMotion.hpp, src/MotionSetup.hpp, src/TmcSpi.hpp, src/TmcRegisters.hpp]
     protocol: [HOME, MOVETO, ARM, STOP, "ev TARGET", "ev HOMED"]
     bringup: [examples/TMC5130Communication, examples/MotionAndHoming, docs/motion-bringup.md]
-  explode: {axis: z, order: 2}
+  explode: {axis: z, order: 1}
   render: true
   bom: true
 
@@ -117,7 +125,7 @@
     files: [src/TmcMotion.hpp, src/Conversions.hpp]
     protocol: ["STATUS (angle)", "ev TARGET"]
     bringup: [examples/MotionAndHoming, docs/motion-bringup.md]
-  explode: {axis: z, order: 2}
+  explode: {axis: z, order: 1}
   render: true
   bom: true
   confirm:
@@ -142,7 +150,7 @@
     files: [src/MotionSetup.hpp, src/TmcMotion.hpp]
     protocol: [HOME, "ev HOMED"]
     bringup: [examples/MotionAndHoming]
-  explode: {axis: y, order: 1}
+  explode: {axis: y, order: -1}
   render: true
   bom: true
 
@@ -167,7 +175,7 @@
     files: [src/BrakeTorqueHw.hpp, src/BrakeTorqueBackend.hpp, src/DAC80501Device.hpp]
     protocol: [BRAKE, "ev RELEASED", "~BRAKE_FAULT in the fault mask"]
     bringup: [examples/BrakeAndTorque, docs/brake-torque-bringup.md]
-  explode: {axis: z, order: 3}
+  explode: {axis: z, order: 1}
   render: true
   bom: true
 
@@ -193,7 +201,7 @@
     files: [src/BrakeTorqueHw.hpp, src/ADS8689Device.hpp, src/BoardCalibration.hpp]
     protocol: [TQ, "STATUS (torque)", "ev TOUCH", "ev PULL / PUSH"]
     bringup: [examples/BrakeAndTorque, docs/brake-torque-bringup.md]
-  explode: {axis: z, order: 5}
+  explode: {axis: z, order: 3}
   render: true
   bom: true
 
@@ -207,7 +215,7 @@
   description: >-
     Two couplers on the lever axis: one between the gear and the brake, one
     between the brake and the torque sensor.
-  explode: {axis: z, order: 4}
+  explode: {axis: z, order: 2}
   render: true
   bom: true
 
@@ -216,6 +224,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["MCMASTER 57155K316_Ball Bearing:*", "MCMASTER 1677K313_Ultra-Low-Friction Oil-Embedded Sleeve Bearing:*"]
+  explode: {hide: true}        # omitted from the exploded views
   look: stainless
   vendor: McMaster-Carr
   part_number: 57155K316, 1677K313
@@ -233,7 +242,7 @@
   description: >-
     Vertical plate at the front of the station carrying the motor and the
     front of the lever axis; mirrored on the left station.
-  explode: {axis: y, order: 2}
+  explode: {axis: z, order: 0}
   render: true
   bom: true
 
@@ -245,7 +254,7 @@
   look: aluminium
   vendor: Janelia (custom)
   description: Vertical plate at the rear of the station carrying the torque sensor.
-  explode: {axis: y, order: 2}
+  explode: {axis: z, order: 4}
   render: true
   bom: true
 
@@ -254,6 +263,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["MCMASTER 93330A541_Female Threaded Round Standoff:*", "MCMASTER 92510A421_Aluminum Unthreaded Spacer:*", "MCMASTER 91125A431_Female Threaded Round Standoff:*"]
+  explode: {ignore: true}      # stays with the motor mount plate and constrains nothing: the parts slide along the standoffs
   look: aluminium
   vendor: McMaster-Carr
   part_number: 93330A541, 92510A421, 91125A431
@@ -269,7 +279,7 @@
   look: aluminium
   vendor: Janelia (custom)
   description: Horizontal plate between the linear stage carriage and the station's frame.
-  explode: {axis: y, order: 3}
+  explode: {axis: y, order: 1}
   render: true
   bom: true
 
@@ -284,7 +294,7 @@
   description: >-
     Base and carriage. Lets the whole station slide along the base plate's
     long axis to set the lever's distance from the mouse.
-  explode: {axis: y, order: 4}
+  explode: {axis: y, order: 2}
   render: true
   bom: true
   confirm: ["Full Misumi part number (travel and options)."]
@@ -299,7 +309,7 @@
   description: >-
     Plate under the linear stage that rotates on the base plate to set the
     station's angle; the indicator and lock knob read and hold it.
-  explode: {axis: y, order: 5}
+  explode: {axis: y, order: 3}
   render: true
   bom: true
 
@@ -313,7 +323,7 @@
   vendor: McMaster-Carr, Janelia (custom)
   part_number: 94052A133, 92196A537, 90298A149
   description: The pointer, the pivot shoulder screw and the knob that locks the rotation plate.
-  explode: {axis: y, order: 5}
+  explode: {axis: y, order: 3}
   render: true
   bom: true
 
@@ -325,7 +335,7 @@
   look: aluminium
   vendor: Janelia (custom)
   description: The common base both stations rotate and slide on; 349 by 76 mm.
-  explode: {axis: y, order: 6}
+  explode: {axis: y, order: 4}
   render: true
   bom: true
 
@@ -334,6 +344,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["SERVO CITY 1314-0016-0004:*", "SERVO CITY 1314-0016-0125:*", "1203-0001-0001:*"]
+  explode: {hide: true}        # omitted from the exploded views
   look: aluminium
   vendor: ServoCity (goBILDA)
   part_number: 1314-0016-0004, 1314-0016-0125, 1203-0001-0001
@@ -347,6 +358,7 @@
   kind: mechanical
   station: both
   gltf_nodes: ["MCMASTER 92196A112_*", "MCMASTER 91292A117_*", "92196A144_*", "92196A066_*", "92196A022_*", "90730A005_*"]
+  explode: {hide: true}        # omitted from the exploded views
   look: stainless
   vendor: McMaster-Carr
   part_number: 92196A112, 91292A117, 92196A144, 92196A066, 92196A022, 90730A005

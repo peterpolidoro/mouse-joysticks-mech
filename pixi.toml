@@ -38,6 +38,7 @@ bpy = ">=4.5,<4.6"
 [feature.render.tasks]
 render = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json docs/renders", description = "Render every view into docs/renders (about an hour)" }
 preview = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json tmp/preview --preview --views", description = "Low-quality renders of the named views into tmp/preview, e.g. `pixi run preview rig-iso,part-brake`" }
+render-views = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json docs/renders --views", description = "Full-quality renders of the named views only into docs/renders (the manifest records them as rendered alone), e.g. `pixi run render-views boards-in-place`" }
 
 [feature.manual.dependencies]
 python = ">=3.11"

@@ -1,8 +1,8 @@
 | # | Part | Page |
 | ---: | --- | --- |
 | 1 | Joystick lever | [lever](../components/lever/) |
-| 2 | Motor mount plate | [motor-mount-plate](../components/motor-mount-plate/) |
-| 3 | Spur gear pair | [gear-train](../components/gear-train/) |
+| 2 | Spur gear pair | [gear-train](../components/gear-train/) |
+| 3 | Motor mount plate | [motor-mount-plate](../components/motor-mount-plate/) |
 | 4 | Limit switch | [limit-switch](../components/limit-switch/) |
 | 5 | Magnetic particle brake | [brake](../components/brake/) |
 | 6 | Shaft couplers | [shaft-couplers](../components/shaft-couplers/) |

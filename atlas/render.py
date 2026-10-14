@@ -112,6 +112,7 @@ class Scene:
                 raise SystemExit(f"no Blender object for registry entry {e['id']}")
             self.entry_objs[e["id"]] = tops
         self.board_objs = []
+        self.board_of = {}           # board mesh -> board id, for `subject: boards:<id>`
         self.always_hidden = set()   # hidden at load (dropped faces); restore() keeps them so
         for bid, b in job["boards"].items():
             path = os.path.join(root, b["file"])
@@ -134,12 +135,17 @@ class Scene:
                 e.matrix_world = Matrix.Translation(G(inst["position"]) - (mn + mx) / 2) @ e.matrix_world
                 for o in meshes_under(tops):
                     self.station_of[o] = inst["station"]
-                    self.board_objs.append(o)
+                    self.board_objs.append(o); self.board_of[o] = bid
                 self.fix_board(bid, e, tops, inst["station"])
                 log(f"board {bid} at {inst['station']}: {len(tops)} top nodes, size {[round(v, 3) for v in (mx - mn)]}")
         bpy.context.view_layer.update()
         self.all_objs = [o for o in bpy.data.objects if o.type == "MESH"]
-        self.orig_matrix = {o: o.matrix_world.copy() for o in bpy.data.objects}
+        # Local matrices, not world ones: restoring matrix_world object by
+        # object goes through each parent's *current* world matrix, so the
+        # children of an exploded part came back displaced by the explode
+        # offset (the brake housing by 130 mm) in every view after an
+        # exploded one. matrix_basis has no such dependency.
+        self.orig_matrix = {o: o.matrix_basis.copy() for o in bpy.data.objects}
         self.apply_looks(job["render"])
         self.setup_render()
         self.setup_studio()
@@ -173,17 +179,43 @@ class Scene:
                     self.board_objs.remove(o)
                     self.station_of.pop(o, None)
                     log(f"board {bid}: dropped the silkscreen face {o.name}")
-        cap = fx.get("white_cap")
-        if cap:
-            for o in meshes:
-                for sl in o.material_slots:
-                    m = sl.material
-                    if m and m.use_nodes:
-                        for node in m.node_tree.nodes:
-                            if node.type == "BSDF_PRINCIPLED":
-                                c = node.inputs["Base Color"].default_value
-                                if min(c[0], c[1], c[2]) > 0.95:
-                                    node.inputs["Base Color"].default_value = (cap, cap, cap, 1)
+        # KiCad's exported materials, matched by base colour (and by alpha when
+        # the match has four values): the translucent solder mask, the
+        # silkscreen and the FR4 body become opaque looks from the palette. A
+        # mesh with no material at all (a STEP model exported without colour:
+        # the RJ-45 and the BNC jacks) gets `missing_material_look`. Whatever
+        # is left is made opaque, and pure whites are capped.
+        rules = fx.get("material_looks", []); tol = fx.get("match_tolerance", 0.02)
+        cap = fx.get("white_cap"); n_rule = n_missing = 0
+        for o in meshes:
+            if not any(sl.material for sl in o.material_slots):
+                look = fx.get("missing_material_look")
+                if look:
+                    o.data.materials.clear(); o.data.materials.append(self.look_material(look)); n_missing += 1
+                continue
+            for sl in o.material_slots:
+                m = sl.material
+                if not (m and m.use_nodes) or m.name.startswith("look:"):
+                    continue
+                bsdf = next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
+                if bsdf is None:
+                    continue
+                c = bsdf.inputs["Base Color"].default_value
+                a = 1.0 if bsdf.inputs["Alpha"].is_linked else bsdf.inputs["Alpha"].default_value
+                hit = None
+                for rule in rules:
+                    want = rule["match"]
+                    if all(abs(c[i] - want[i]) <= tol for i in range(3)) and (len(want) < 4 or abs(a - want[3]) <= tol):
+                        hit = rule["look"]; break
+                if hit:
+                    sl.material = self.look_material(hit); n_rule += 1
+                    continue
+                if cap and min(c[0], c[1], c[2]) > 0.95:
+                    bsdf.inputs["Base Color"].default_value = (cap, cap, cap, 1)
+                if not bsdf.inputs["Alpha"].is_linked:
+                    bsdf.inputs["Alpha"].default_value = 1.0
+                m.surface_render_method = "DITHERED"
+        log(f"board {bid}: {n_rule} material slots relabelled by colour, {n_missing} meshes without a material given {fx.get('missing_material_look')}")
         if body is None:
             log(f"board {bid}: no body mesh found, no proxies"); return
         lo, hi = body
@@ -221,7 +253,7 @@ class Scene:
                 me.materials.append(self.look_material(px.get("look", "black-plastic")))
                 shapes = [pr]
             for o in shapes:
-                self.station_of[o] = station; self.board_objs.append(o)
+                self.station_of[o] = station; self.board_objs.append(o); self.board_of[o] = bid
             log(f"board {bid}: stand-in for {px['name']} ({'mesh' if px.get('mesh') else 'box'}, {len(shapes)} objects)")
 
     @staticmethod
@@ -245,6 +277,11 @@ class Scene:
         bsdf.inputs["Base Color"].default_value = (b[0], b[1], b[2], 1)
         bsdf.inputs["Metallic"].default_value = spec.get("metallic", 0.0)
         bsdf.inputs["Roughness"].default_value = spec.get("roughness", 0.5)
+        if "coat" in spec:
+            bsdf.inputs["Coat Weight"].default_value = spec["coat"]
+            bsdf.inputs["Coat Roughness"].default_value = spec.get("coat_roughness", 0.1)
+        if "specular" in spec:
+            bsdf.inputs["Specular IOR Level"].default_value = spec["specular"]
         self.looks[name] = m
         return m
 
@@ -280,11 +317,11 @@ class Scene:
                 slot.material = self.look_material(look)
             if not o.material_slots:
                 o.data.materials.append(self.look_material((e or {}).get("look") or "grey-plastic"))
-        # the boards: KiCad's materials, with only the mirror finishes tamed
+        # the boards: KiCad's materials (those fix_board left), with only the mirror finishes tamed
         for o in self.board_objs:
             for slot in o.material_slots:
                 m = slot.material
-                if m and m.use_nodes:
+                if m and m.use_nodes and not m.name.startswith("look:"):
                     for node in m.node_tree.nodes:
                         if node.type == "BSDF_PRINCIPLED" and not node.inputs["Roughness"].is_linked:
                             node.inputs["Roughness"].default_value = max(node.inputs["Roughness"].default_value, 0.3)
@@ -299,6 +336,20 @@ class Scene:
         c = r.get("isolate", {}).get("context_color", [0.72, 0.73, 0.75])
         em.inputs["Color"].default_value = (c[0], c[1], c[2], 1); em.inputs["Strength"].default_value = 1.0
         nt.links.new(em.outputs[0], nt.nodes["Material Output"].inputs["Surface"])
+        # the ghost: the same flat grey, mostly transparent, for context parts
+        # that stand between the camera and the subject
+        self.ghost_mat = bpy.data.materials.new("atlas_ghost"); self.ghost_mat.use_nodes = True
+        nt = self.ghost_mat.node_tree
+        for node in list(nt.nodes):
+            if node.type != "OUTPUT_MATERIAL":
+                nt.nodes.remove(node)
+        em = nt.nodes.new("ShaderNodeEmission"); em.inputs["Color"].default_value = (c[0], c[1], c[2], 1)
+        tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+        mix = nt.nodes.new("ShaderNodeMixShader")
+        mix.inputs["Fac"].default_value = r.get("isolate", {}).get("ghost_opacity", 0.22)
+        nt.links.new(tr.outputs[0], mix.inputs[1]); nt.links.new(em.outputs[0], mix.inputs[2])
+        nt.links.new(mix.outputs[0], nt.nodes["Material Output"].inputs["Surface"])
+        self.ghost_mat.surface_render_method = "BLENDED"
 
     # --------------------------------------------------------------- studio
 
@@ -374,13 +425,15 @@ class Scene:
         scn = bpy.context.scene; r = self.job["render"].get("isolate", {})
         self.coll_subject = bpy.data.collections.new("atlas_subject"); scn.collection.children.link(self.coll_subject)
         self.coll_context = bpy.data.collections.new("atlas_context"); scn.collection.children.link(self.coll_context)
+        self.coll_ghost = bpy.data.collections.new("atlas_ghost"); scn.collection.children.link(self.coll_ghost)
         scn.render.line_thickness_mode = "ABSOLUTE"
         fs = bpy.context.view_layer.freestyle_settings
         fs.crease_angle = math.radians(r.get("crease_angle_deg", 110))
         fs.use_culling = True
         for ls in list(fs.linesets):
             fs.linesets.remove(ls)
-        for name, coll, spec in (("subject", self.coll_subject, r.get("subject_line", {})), ("context", self.coll_context, r.get("context_line", {}))):
+        for name, coll, spec in (("subject", self.coll_subject, r.get("subject_line", {})), ("context", self.coll_context, r.get("context_line", {})),
+                                 ("ghost", self.coll_ghost, r.get("ghost_line", r.get("context_line", {})))):
             ls = fs.linesets.new(name)
             ls.select_by_collection = True; ls.collection = coll; ls.collection_negation = "INCLUSIVE"
             ls.select_silhouette = True; ls.select_border = True; ls.select_crease = True
@@ -391,21 +444,67 @@ class Scene:
         scn.render.use_freestyle = False
 
     def set_isolation(self, on, subject, visible):
+        """Subject in its looks, the rest a flat grey; and the context parts
+        that stand between the camera and the subject become ghosts, so the
+        subject is seen rather than covered. Needs the camera placed."""
         scn = bpy.context.scene
-        for coll in (self.coll_subject, self.coll_context):
+        for coll in (self.coll_subject, self.coll_context, self.coll_ghost):
             for o in list(coll.objects):
                 coll.objects.unlink(o)
         scn.render.use_freestyle = bool(on)
         if not on:
             return
         subj = set(subject)
+        occluders, blocked = self.occluders(subject, visible)
         for o in visible:
-            (self.coll_subject if o in subj else self.coll_context).objects.link(o)
+            (self.coll_subject if o in subj else self.coll_ghost if o in occluders else self.coll_context).objects.link(o)
             if o not in subj:
+                mat = self.ghost_mat if o in occluders else self.context_mat
                 for sl in o.material_slots:
-                    sl.material = self.context_mat
+                    sl.material = mat
                 if not o.material_slots:
-                    o.data.materials.append(self.context_mat)
+                    o.data.materials.append(mat)
+        log(f"isolation: {len(occluders)} context objects in front of the subject ghosted ({blocked:.0%} of the sample rays were blocked)")
+
+    def occluders(self, subject, visible):
+        """Context objects hit by rays from the camera to sample points on the
+        subject before the rays reach it. Hidden objects and the floor are
+        passed through."""
+        r = self.job["render"].get("isolate", {})
+        scn = bpy.context.scene
+        bpy.context.view_layer.update()
+        dg = bpy.context.evaluated_depsgraph_get()
+        subj = set(subject); vis = set(visible)
+        pts = []
+        for o in subject:
+            if o.type != "MESH":
+                continue
+            vs = o.data.vertices; n = len(vs)
+            step = max(1, n // max(1, r.get("sample_rays", 400) // max(1, len(subject))))
+            pts += [o.matrix_world @ vs[i].co for i in range(0, n, step)]
+            pts += [o.matrix_world @ Vector(c) for c in o.bound_box]
+        cam = self.cam.matrix_world.translation
+        hits = {}; blocked = 0
+        for p in pts:
+            d = p - cam; dist = d.length; d.normalize()
+            origin = cam.copy(); travelled = 0.0; seen = set()
+            for _ in range(24):
+                ok, loc, _, _, obj, _ = scn.ray_cast(dg, origin, d, distance=dist - travelled - 1e-5)
+                if not ok or obj is None:
+                    break
+                obj = obj.original if hasattr(obj, "original") else obj
+                if obj in subj:
+                    break
+                if obj in vis and obj not in seen:
+                    seen.add(obj)
+                step = (loc - origin).length + 1e-4
+                origin = origin + d * step; travelled += step
+            if seen:
+                blocked += 1
+                for o in seen:
+                    hits[o] = hits.get(o, 0) + 1
+        min_hits = max(1, int(r.get("ghost_min_fraction", 0.01) * len(pts)))
+        return {o for o, n in hits.items() if n >= min_hits}, (blocked / len(pts) if pts else 0.0)
 
     def place_floor(self, objs):
         mn, mx = world_aabb(objs)
@@ -420,6 +519,8 @@ class Scene:
             return [o for o in self.all_objs if self.station_of.get(o) in (arg, "rig")]
         if spec == "boards":
             return list(self.board_objs)
+        if kind == "boards":
+            return [o for o in self.board_objs if self.board_of.get(o) == arg]
         if kind == "entry":
             tops = [t for t in self.entry_objs[entry] if arg in ("any", self.station_of.get(t)) or self.station_of.get(t) == "rig"]
             return meshes_under(tops)
@@ -430,23 +531,85 @@ class Scene:
             for s, m in zip(o.material_slots, mats):
                 s.material = m
         for o, m in self.orig_matrix.items():
-            o.matrix_world = m
+            o.matrix_basis = m
         for o in bpy.data.objects:
             o.hide_render = o in self.always_hidden
         bpy.context.view_layer.update()
 
     def explode(self, factor, station):
-        step = self.job["explode"]["step"]
+        """Exploded view by clearance, not by a fixed step. Every entry with an
+        `explode` field moves along its axis in the direction given by the sign
+        of `order` (axis z: positive away from the lever; axis y: positive
+        down), in order of |order|. Each group (the entries sharing one order)
+        moves just far enough that its bounding box clears, by `gap`, every
+        box already placed that it overlaps in the other two axes: the
+        station's fixed meshes, the entries of other chains, and the groups
+        before it in its own chain. `factor` scales the whole spread, so the
+        100 % view has no intersecting boxes and the partial views are
+        proportionally tighter. Lever-axis chains are placed first, so the
+        parts they move are out of the way of the downward stack. Entries
+        with `explode: {ignore: true}` stay in place and constrain nothing
+        (the frame standoffs the parts slide along); entries with
+        `explode: {hide: true}` are hidden by render_view before this runs."""
+        gap = self.job["explode"].get("gap", 0.02)
         zs = self.job["stations"][station]["z_sign"]
+
+        def gbox(objs):
+            mn, mx = world_aabb(objs)
+            if mn.x > mx.x:
+                return None
+            a, b = G_inv(mn), G_inv(mx)
+            return [min(a[i], b[i]) for i in range(3)], [max(a[i], b[i]) for i in range(3)]
+
+        def shifted(b, ax, d):
+            lo, hi = [list(b[0]), list(b[1])]; lo[ax] += d; hi[ax] += d
+            return lo, hi
+
+        def crosses(b, p, ax):
+            return all(min(b[1][i], p[1][i]) - max(b[0][i], p[0][i]) > 1e-4 for i in range(3) if i != ax)
+
+        def tops_of(eid):
+            return [t for t in self.entry_objs[eid] if self.station_of.get(t) in (station, "rig")]
+
+        chains = {}   # (axis, sign) -> {|order|: [entry id]}
         for e in self.job["entries"]:
-            ex = e.get("explode")
-            if not ex or e["id"] not in self.entry_objs:
+            x = e.get("explode")
+            if not x or not x.get("order") or e["id"] not in self.entry_objs or not tops_of(e["id"]):
                 continue
-            d = Vector((0, 0, zs * ex["order"] * step * factor)) if ex["axis"] == "z" else Vector((0, -ex["order"] * step * factor, 0))
-            for t in self.entry_objs[e["id"]]:
-                if self.station_of.get(t) in (station, "rig"):
-                    t.matrix_world = Matrix.Translation(G(d)) @ t.matrix_world
+            chains.setdefault((x["axis"], 1 if x["order"] > 0 else -1), {}).setdefault(abs(x["order"]), []).append(e["id"])
+        moving = {eid for ch in chains.values() for ids in ch.values() for eid in ids}
+        orig = {eid: gbox(meshes_under(tops_of(eid))) for eid in moving}
+        moving_meshes = {o for eid in moving for o in meshes_under(tops_of(eid))}
+        ignored = {o for e in self.job["entries"] if (e.get("explode") or {}).get("ignore") and e["id"] in self.entry_objs
+                   for o in meshes_under(self.entry_objs[e["id"]])}
+        fixed = [b for b in (gbox([o]) for o in self.all_objs
+                             if o not in moving_meshes and o not in ignored and o not in self.board_objs and not o.hide_render
+                             and self.station_of.get(o) in (station, "rig")) if b]
+        final = {}    # entry id -> its box at full spread
+        offsets = {}  # entry id -> (axis index, signed metres at full spread)
+        for (axis, sign), chain in sorted(chains.items(), key=lambda kv: (kv[0][0] != "z", kv[0][1])):
+            ax = 2 if axis == "z" else 1
+            direction = zs * sign if axis == "z" else -sign
+            placed = fixed + [final.get(eid) or orig[eid] for eid in moving if eid not in {i for ids in chain.values() for i in ids}]
+            need = 0.0
+            for k in sorted(chain):
+                for eid in chain[k]:
+                    b = orig[eid]
+                    for p in placed:
+                        if crosses(b, p, ax):
+                            d = (p[1][ax] - b[0][ax]) if direction > 0 else (b[1][ax] - p[0][ax])
+                            need = max(need, d + gap)
+                for eid in chain[k]:
+                    final[eid] = shifted(orig[eid], ax, direction * need)
+                    offsets[eid] = (ax, direction * need)
+                    placed.append(final[eid])
+        for eid, (ax, d) in offsets.items():
+            v = [0.0, 0.0, 0.0]; v[ax] = d * factor
+            for t in tops_of(eid):
+                t.matrix_world = Matrix.Translation(G(v)) @ t.matrix_world
         bpy.context.view_layer.update()
+        spread = {eid: round(d * factor * 1000) for eid, (ax, d) in offsets.items()}
+        log(f"explode {factor}: offsets in mm {spread}")
 
     def frame(self, subject, cam_spec, long_side):
         mn, mx = world_aabb(subject)
@@ -527,20 +690,28 @@ class Scene:
         self.restore()
         entry = v.get("entry")
         hidden = set()
-        if not v.get("boards"):
+        boards = v.get("boards")       # true: every board; a board id or a list of them: only those
+        if not boards:
             hidden.update(self.board_objs)
+        elif boards is not True:
+            wanted = [boards] if isinstance(boards, str) else list(boards)
+            hidden.update(o for o in self.board_objs if self.board_of.get(o) not in wanted)
         if v.get("hide"):
             _, _, arg = v["hide"].partition(":")
             hidden.update(o for o in self.all_objs if self.station_of.get(o) == arg)
         if v["subject"].startswith("station:"):
             st = v["subject"].split(":")[1]
             hidden.update(o for o in self.all_objs if self.station_of.get(o) not in (st, "rig"))
+        if v.get("explode"):
+            # hardware the exploded views omit (registry `explode: {hide: true}`)
+            for e in self.job["entries"]:
+                if (e.get("explode") or {}).get("hide") and e["id"] in self.entry_objs:
+                    hidden.update(meshes_under(self.entry_objs[e["id"]]))
         for o in hidden:
             o.hide_render = True
         visible = [o for o in self.all_objs if o not in hidden]
         subject = [o for o in self.objs_of(v["subject"], entry) if o not in hidden]
         subj = set(subject)
-        self.set_isolation(v.get("others") == "isolate", subject, visible)
         if v.get("explode"):
             st = v["subject"].split(":")[1] if ":" in v["subject"] else "right"
             self.explode(v["explode"], st)
@@ -550,6 +721,7 @@ class Scene:
         long_side = r["preview_long_side_px"] if preview else (r["hero_long_side_px"] if v.get("hero") else r["long_side_px"])
         self.place_floor(visible)   # the catcher hides what lies below it: never under the subject alone
         self.frame(frame_objs, v["camera"], long_side)
+        self.set_isolation(v.get("others") == "isolate", subject, visible)   # after frame(): it casts rays from the camera
         scn = bpy.context.scene
         scn.cycles.samples = r["preview_samples"] if preview else r["samples"]
         scn.render.filepath = os.path.join(outdir, v["id"] + ".png")
@@ -583,9 +755,20 @@ def main():
     log(f"{len(views)} views, preview={preview}")
     for v in views:
         scene.render_view(v, outdir, preview)
-    if only is None and not preview:
-        with open(os.path.join(outdir, "manifest.json"), "w") as f:
-            json.dump({"inputs": job.get("inputs", {}), "views": [v["id"] for v in views], "blender": bpy.app.version_string}, f, indent=1)
+    if not preview:
+        # The manifest says which inputs the renders came from. A full render
+        # writes it afresh; a `--views` render into the same directory updates
+        # the inputs and records the views rendered alone, so `build.py --check`
+        # can say that the other renders predate the current inputs.
+        path = os.path.join(outdir, "manifest.json")
+        man = {"inputs": job.get("inputs", {}), "views": [v["id"] for v in job["views"]], "blender": bpy.app.version_string}
+        if only is not None:
+            old = json.load(open(path)) if os.path.exists(path) else {}
+            partial = set(old.get("partial_renders", [])) | {v["id"] for v in views}
+            man["partial_renders"] = sorted(partial)
+            log(f"manifest: inputs updated after rendering {len(views)} of {len(job['views'])} views alone")
+        with open(path, "w") as f:
+            json.dump(man, f, indent=1)
     log("done")
 
 

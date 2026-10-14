@@ -30,16 +30,16 @@
    "station": "right",
    "name": "Spur gear pair",
    "box_px": [
-    554.3,
-    461.3,
-    931.6,
-    1155.1
+    764.5,
+    536.2,
+    1156.0,
+    1200
    ],
-   "corners_in_frame": 8,
+   "corners_in_frame": 6,
    "centre_gltf": [
     -0.0137,
     0.0603,
-    -0.0171
+    0.0204
    ],
    "size_gltf": [
     0.0511,
@@ -74,16 +74,16 @@
    "station": "right",
    "name": "Lever-axis encoder",
    "box_px": [
-    813.6,
-    887.6,
-    1018.2,
-    1160.2
+    1115.4,
+    1041.1,
+    1348.6,
+    1200
    ],
-   "corners_in_frame": 8,
+   "corners_in_frame": 5,
    "centre_gltf": [
     -0.0205,
     0.0443,
-    0.0193
+    0.0693
    ],
    "size_gltf": [
     0.0232,
@@ -118,16 +118,16 @@
    "station": "right",
    "name": "Magnetic particle brake",
    "box_px": [
-    392.6,
-    459.0,
-    843.7,
-    905.2
+    787.3,
+    611.5,
+    1312.4,
+    1157.5
    ],
    "corners_in_frame": 8,
    "centre_gltf": [
     -0.019,
     0.0772,
-    -0.0375
+    0.0375
    ],
    "size_gltf": [
     0.0429,
@@ -140,16 +140,16 @@
    "station": "right",
    "name": "Reaction torque sensor",
    "box_px": [
-    357.2,
-    434.7,
-    866.4,
-    943.4
+    1083.9,
+    713.8,
+    1600,
+    1200
    ],
-   "corners_in_frame": 8,
+   "corners_in_frame": 4,
    "centre_gltf": [
     -0.0225,
     0.0791,
-    -0.0346
+    0.0904
    ],
    "size_gltf": [
     0.0491,
@@ -206,15 +206,15 @@
    "station": "right",
    "name": "Torque sensor plate",
    "box_px": [
-    1418.4,
-    465.4,
+    1356.9,
+    889.0,
     1600,
     1200
    ],
    "corners_in_frame": 1,
    "centre_gltf": [
     -0.027,
-    0.1133,
+    0.0633,
     0.1154
    ],
    "size_gltf": [
@@ -228,20 +228,20 @@
    "station": "right",
    "name": "Stage interface plate",
    "box_px": [
-    766.3,
-    545.6,
+    770.5,
+    1003.2,
     1600,
     1200
    ],
-   "corners_in_frame": 4,
+   "corners_in_frame": 2,
    "centre_gltf": [
     -0.0212,
-    0.1025,
+    0.0275,
     0.0737
    ],
    "size_gltf": [
     0.0691,
-    0.0064,
+    0.0063,
     -0.0975
    ]
   },
@@ -258,7 +258,7 @@
    "corners_in_frame": 2,
    "centre_gltf": [
     -0.0282,
-    0.0154,
+    0.0153,
     0.0893
    ],
    "size_gltf": [

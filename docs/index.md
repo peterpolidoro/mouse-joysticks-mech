@@ -22,7 +22,7 @@ the model.
   <button class="hotspot" slot="hotspot-encoder" data-position="-0.0205 0.0443 0.0693" data-normal="0 1 0" data-href="components/encoder/" title="Lever-axis encoder">11</button>
   <button class="hotspot" slot="hotspot-stage-interface-plate" data-position="-0.0212 0.0275 0.0737" data-normal="0 1 0" data-href="components/stage-interface-plate/" title="Stage interface plate">12</button>
   <button class="hotspot" slot="hotspot-rotation-plate" data-position="-0.0232 0.0032 0.0883" data-normal="0 1 0" data-href="components/rotation-plate/" title="Rotation plate">13</button>
-  <button class="hotspot" slot="hotspot-linear-stage" data-position="-0.0282 0.0154 0.0893" data-normal="0 1 0" data-href="components/linear-stage/" title="Linear stage">14</button>
+  <button class="hotspot" slot="hotspot-linear-stage" data-position="-0.0282 0.0153 0.0893" data-normal="0 1 0" data-href="components/linear-stage/" title="Linear stage">14</button>
   <button class="hotspot" slot="hotspot-rotation-lock" data-position="-0.0127 0.004 0.0926" data-normal="0 1 0" data-href="components/rotation-lock/" title="Rotation indicator and lock">15</button>
 </model-viewer>
 <script>

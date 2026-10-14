@@ -104,9 +104,12 @@ def boards(reg):
                   f"The firmware is [mouse-joystick-firm]({FIRM}) (`v1.0.0`); its",
                   f"[architecture page]({FIRM}/blob/main/docs/architecture.md) and",
                   f"[circuit-to-code map]({FIRM}/blob/main/docs/circuit-code-map.md) say which code drives which circuit.", ""]
-            L += ["![Placement study](renders/rig-with-boards-iso.png)", "",
+            L += ["![Placement study, with every board of Rig 1](renders/rig-with-boards-iso.png)", "",
                   "The boards in the placement study stand under their stations, terminal",
-                  "blocks up; where they finally mount is an enclosure decision.", ""]
+                  "blocks up; where they finally mount is an enclosure decision. The camera",
+                  "interface board stands in their row beyond the end of the base plate only",
+                  "so that one picture shows every board of Rig 1; on the rig it sits by the",
+                  "cameras.", ""]
     (ROOT / "docs/boards.md").write_text("\n".join(L) + "\n")
 
 

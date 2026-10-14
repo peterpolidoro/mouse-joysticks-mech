@@ -8,8 +8,8 @@
 | 6 | Shaft couplers | [shaft-couplers](../components/shaft-couplers/) |
 | 7 | Reaction torque sensor | [torque-sensor](../components/torque-sensor/) |
 | 8 | Torque sensor plate | [torque-sensor-plate](../components/torque-sensor-plate/) |
-| 9 | Dual base plate | [dual-base-plate](../components/dual-base-plate/) |
-| 10 | Stepper motor | [motor](../components/motor/) |
+| 9 | Stepper motor | [motor](../components/motor/) |
+| 10 | Dual base plate | [dual-base-plate](../components/dual-base-plate/) |
 | 11 | Lever-axis encoder | [encoder](../components/encoder/) |
 | 12 | Stage interface plate | [stage-interface-plate](../components/stage-interface-plate/) |
 | 13 | Rotation plate | [rotation-plate](../components/rotation-plate/) |

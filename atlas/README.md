@@ -9,7 +9,7 @@ or in the generated pages is edited by hand.
 | `components.yaml` | the component registry: every part, board, cable and external endpoint of the rig, with its glTF nodes, vendor part number, datasheet, board connector, schematic block, firmware files and protocol verbs. The header explains the fields. |
 | `scene.yaml` | the scene: units and frame, which glTF root is which station, where the boards stand (a placement study, not a fixture), the exploded-view step, the studio lighting, the palette of finishes (`looks`) and the camera of every view |
 | `build.py` | reads both files and the glTF, resolves every registry pattern to node names (an unmatched pattern is an error), expands the per-part view and writes `job.json` for Blender; `--check` compares `docs/renders/manifest.json` with the inputs' hashes |
-| `render.py` | runs inside Blender (the `bpy` wheel or a Blender binary): imports the models, gives every part its finish, lights the studio, and per view sets the subject, the isolation, the explode offsets, the floor and the camera, renders a PNG and writes `docs/renders/hotspots/<view>.json` (projected pixel boxes and world centres of every registry entry) |
+| `render.py` | runs inside Blender (the `bpy` wheel or a Blender binary): imports the models, gives every part its finish, lights the studio, and per view sets the subject, the isolation, the explode offsets (from the parts' bounding boxes, so that neighbours clear each other by `explode.gap`), the floor and the camera, renders a PNG and writes `docs/renders/hotspots/<view>.json` (projected pixel boxes and world centres of every registry entry) |
 | `bom.py` | the mechanical bill of materials counted from the glTF through the registry, to `docs/bom-mechanical.md` and `.csv`; `--check` lists part nodes no entry covers |
 | `boards/` | the two boards' glTF exports from their KiCad layouts, the FFC socket mesh that stands in for their missing model, with `PROVENANCE.md` |
 | `step2obj.py` | FreeCAD script that tessellates a STEP model to OBJ, one group per solid; made the socket mesh |
@@ -23,18 +23,23 @@ be installed (the Guix `blender` package renders too, but it lacks the
 denoiser and its output is grainy).
 
 ```sh
-pixi run render                            # every view into docs/renders, about 15 minutes
+pixi run render                            # every view into docs/renders, about an hour
 pixi run preview rig-iso,part-brake        # low-quality versions of named views into tmp/preview
+pixi run render-views boards-in-place      # full-quality renders of named views only, into docs/renders
 pixi run generate                          # BOM, pages, overlays
 pixi run site                              # the site into site/
 pixi run check                             # are the renders current, is every part node covered?
 ```
 
-A solid view takes ten to thirty seconds at the committed quality and an
-isolation view about the same: nothing is transparent any more.
+A view takes two to three minutes at the committed quality (the hero at its
+larger size a little longer), a preview fifteen seconds.
 `docs/renders/manifest.json` records the SHA-256 of every input, and
 `check` reports stale renders without rendering, so the renders regenerate
-only when the model, the registry, the scene or the scripts change.
+only when the model, the registry, the scene or the scripts change. When a
+change touches only some views (a camera, a view's own switches),
+`render-views` re-renders those alone and updates the manifest; it also
+records them, and `check` lists them, as a reminder that the other renders
+predate the current inputs until the next full render.
 
 ## The look
 
@@ -51,7 +56,10 @@ from appearance name to look.
 
 The studio is three area lights placed on the mechanism's bounding sphere, a
 darkish neutral world so polished metal reflects mid-grey rather than white,
-and a floor set just under the lowest visible part of each view. The film is
+and a floor set just under the lowest visible part of each view. Exposure
+sits at -0.8 EV, with the lights and the world turned down with it: the first
+render sets had half their pixels above 230 of 255 and the machined
+aluminium in the photographs is a matte mid-grey. The film is
 transparent and the floor a shadow catcher, so every picture carries its
 contact shadows onto whatever background the page has: white on GitHub's
 light theme and on the site, which puts each render on a white card. AgX tone
@@ -62,7 +70,11 @@ An isolation view (`others: isolate`) keeps the subject in its finish, turns
 every other visible part into an unlit flat grey silhouette, and draws
 Freestyle outlines: dark and thicker around the subject, thin and light
 around the context. That reads for a black gear and an aluminium plate
-alike, and costs nothing in noise or time.
+alike, and costs nothing in noise or time. Context parts that stand between
+the camera and the subject (found by casting rays from the camera to sample
+points on the subject, `render.py occluders`) are drawn as ghosts at
+`isolate.ghost_opacity` instead, with their outlines kept, so the brake is
+seen through the couplers and torque sensor rather than hidden behind them.
 
 ## The site
 
@@ -95,9 +107,14 @@ files read on GitHub and on the site.
 - The boards' FFC sockets (`J1301`, `J501`) carry no model in the board
   exports; the library's STEP of the socket, tessellated once to
   `boards/FH12-50S-0.5SVA-54.obj`, stands in (`board_fixes.proxies` in
-  `scene.yaml`). KiCad's silkscreen export is one flat near-white mesh of
-  the legend; pure-white materials, the legend included, are capped to a
-  light grey so the boards do not glare (`board_fixes.white_cap`).
+  `scene.yaml`). The board glTFs carry KiCad's 3D-viewer default materials,
+  not the boards' finishes: the solder mask is a translucent green over a
+  yellowish body and the RJ-45 and BNC models have no material at all.
+  `board_fixes.material_looks` replaces the mask, silkscreen and body
+  materials by colour match with opaque looks (dark green, label white,
+  FR4), `missing_material_look` gives the colourless connector meshes
+  nickel, and the few remaining pure whites are capped to a light grey.
+  Copper is not in the export, so the mask is one flat green.
 
 ## Frames
 

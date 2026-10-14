@@ -43,18 +43,38 @@ boards:
       - {station: left,  position: [-0.060, -0.040, -0.088], rotation_deg: [0, -90, 90]}
   camera-board:
     file: atlas/boards/camera-gpio-interface-pcb.glb
-    instances: []        # not placed in the mechanical renders; it sits elsewhere on the rig
+    # One copy, standing like the joystick boards (same rotation: on its
+    # 100 mm edge, component side facing -X, top edge up) in their row beyond
+    # the +Z end of the base plate, bottom edges level, so the all-boards view
+    # shows every board of Rig 1. On the real rig it sits by the cameras;
+    # this is a place in the picture, not a mounting position.
+    instances:
+      - {station: rig, position: [-0.060, -0.050, 0.208], rotation_deg: [0, -90, 90]}
 
-# KiCad's glTF export needs fixing up for a render: its silkscreen is one
-# flat near-white mesh of the legend the size of the board (kept: once the
-# white cap tames it, it reads as the legend; `drop_silkscreen_faces: true`
-# removes it), its pure-white part bodies glare (capped), and the FFC sockets
-# have no library model (a box the size of the courtyard stands in, from the
-# board repository's docs/generated/mechanical/connectors.csv: millimetres
-# from the board centre, X right, Y up, on the component side).
+# KiCad's glTF export needs fixing up for a render. Its materials are the 3D
+# viewer's defaults, not the board's: the solder mask is a translucent green
+# (0.08, 0.20, 0.14 at 83 % opacity) over a yellowish FR4 body, which Cycles
+# blends into mint, and the silkscreen is white at 90 % opacity. Each is
+# matched by its exported base colour (and alpha, when the match has four
+# values) and replaced by an opaque look from the palette. Two connector
+# models, the RJ-45 and the BNC jacks, come from STEP files without colour,
+# so their meshes carry no material at all and would render Blender's default
+# white: `missing_material_look` gives them nickel. Remaining pure-white part
+# bodies (LED packages, the USB-C shell) are capped to a light grey. The
+# silkscreen mesh is one flat mesh of the legend the size of the board (kept;
+# `drop_silkscreen_faces: true` removes it). The FFC sockets have no library
+# model (a stand-in from the board repository's
+# docs/generated/mechanical/connectors.csv: millimetres from the board centre,
+# X right, Y up, on the component side).
 board_fixes:
   drop_silkscreen_faces: false
   white_cap: 0.70
+  match_tolerance: 0.02
+  missing_material_look: nickel
+  material_looks:
+    - {match: [0.08, 0.20, 0.14], look: solder-mask-green}    # the mask, both sides
+    - {match: [1.00, 1.00, 1.00, 0.90], look: label-white}    # the silkscreen (opaque white bodies keep alpha 1 and are capped instead)
+    - {match: [0.42, 0.45, 0.29], look: fr4}                  # the board body: visible on the edges
   # `mesh` is the library's own STEP of the socket, tessellated to OBJ once
   # (atlas/boards/PROVENANCE.md); `rotation_deg` is the footprint's rotation
   # on the board; without `mesh` a box of the courtyard's size is used.
@@ -69,10 +89,14 @@ board_fixes:
          w_mm: 5.6, h_mm: 29.5, height_mm: 3.6, look: beige-plastic}
 
 explode:
-  step: 0.025            # metres per unit of `explode.order` in the registry
+  gap: 0.020             # metres of clearance between neighbouring bounding boxes at 100 %
   factors: [0.25, 0.5, 1.0]
-  # axis z: along the station's lever axis away from the lever (+Z on the
-  #         right station, -Z on the left); axis y: downward.
+  # The registry's `explode` fields give each part an axis and a signed order
+  # (axis z: along the station's lever axis, positive away from the lever,
+  # which is +Z on the right station and -Z on the left; axis y: positive
+  # down). render.py moves the parts of each order just far enough that their
+  # boxes clear everything already placed by `gap`, so a 25 mm brake and a
+  # 68 mm motor get the room they need; the factor scales that spread.
 
 render:
   engine: CYCLES
@@ -85,34 +109,45 @@ render:
   film_transparent: true      # the backdrop is the page's; a shadow catcher keeps the contact shadows
   view_transform: AgX
   look: "AgX - Medium High Contrast"
-  exposure: 0.0
+  exposure: -0.8               # the first sets had half their pixels above 230/255
   # A studio: three area lights placed relative to the subject's bounding
   # sphere (radius R), a darkish neutral world so polished metal reflects
   # mid-grey rather than white, and a floor just under the lowest visible
   # part: a shadow catcher when the film is transparent, so the contact
   # shadows survive onto whatever background the page has. Powers are for
   # R = 0.2 m and scale with R squared.
-  world: {color: [0.22, 0.23, 0.25], strength: 1.0}
+  world: {color: [0.22, 0.23, 0.25], strength: 0.7}
   floor: {color: [0.46, 0.47, 0.49], roughness: 0.9, size_factor: 40, shadow_catcher: true}
   studio:
-    key:  {direction: [-1.0, 1.3, 0.7], distance: 3.0, size: 2.0, watts: 26}
-    fill: {direction: [1.2, 0.6, 0.9], distance: 3.5, size: 3.0, watts: 12}
-    rim:  {direction: [0.4, 1.1, -1.3], distance: 3.0, size: 1.5, watts: 16}
+    key:  {direction: [-1.0, 1.3, 0.7], distance: 3.0, size: 2.0, watts: 20}
+    fill: {direction: [1.2, 0.6, 0.9], distance: 3.5, size: 3.0, watts: 10}
+    rim:  {direction: [0.4, 1.1, -1.3], distance: 3.0, size: 1.5, watts: 14}
   # Isolation views: the subject keeps its looks, everything else becomes an
   # unlit flat grey silhouette, and Freestyle draws outlines: a dark, thicker
   # line around the subject, a thin light one around the context.
+  # Context parts that stand between the camera and the subject (found by
+  # casting rays from the camera to points on the subject) are drawn as
+  # near-transparent ghosts of `ghost_opacity` with their own, slightly
+  # darker outlines, so they read as wireframes and the subject is seen
+  # rather than covered; a part has to block at least `ghost_min_fraction`
+  # of the rays.
   isolate:
     context_color: [0.72, 0.73, 0.75]
+    ghost_opacity: 0.10
+    ghost_min_fraction: 0.01
+    sample_rays: 400
     subject_line: {color: [0.08, 0.08, 0.1], thickness: 2.4}
     context_line: {color: [0.40, 0.41, 0.44], thickness: 0.7}
+    ghost_line:   {color: [0.30, 0.31, 0.34], thickness: 0.9}
     crease_angle_deg: 110
   # Every mesh gets a "look" from the palette below: the registry entry's
   # `look` (and its `looks_by_material` / `looks_by_node` overrides for parts
   # with several finishes), else the Inventor appearance name through
   # `material_looks`. The board models keep their own KiCad materials.
   looks:
-    aluminium:      {base: [0.60, 0.61, 0.63], metallic: 1.0, roughness: 0.36}
-    stainless:      {base: [0.54, 0.54, 0.56], metallic: 1.0, roughness: 0.24}
+    aluminium:      {base: [0.46, 0.47, 0.49], metallic: 1.0, roughness: 0.50}   # machined, matte in the photos
+    stainless:      {base: [0.50, 0.50, 0.52], metallic: 1.0, roughness: 0.28}
+    nickel:         {base: [0.58, 0.55, 0.50], metallic: 1.0, roughness: 0.28}   # plated connector shells
     black-anodized: {base: [0.035, 0.035, 0.040], metallic: 0.6, roughness: 0.42}
     black-plastic:  {base: [0.020, 0.020, 0.022], metallic: 0.0, roughness: 0.48}
     grey-plastic:   {base: [0.30, 0.31, 0.33], metallic: 0.0, roughness: 0.55}
@@ -120,6 +155,8 @@ render:
     brass:          {base: [0.78, 0.56, 0.20], metallic: 1.0, roughness: 0.35}
     label-white:    {base: [0.88, 0.88, 0.86], metallic: 0.0, roughness: 0.75}
     beige-plastic:  {base: [0.62, 0.55, 0.42], metallic: 0.0, roughness: 0.55}
+    solder-mask-green: {base: [0.010, 0.095, 0.030], metallic: 0.0, roughness: 0.30, coat: 0.4, coat_roughness: 0.15}  # dark green, glossy
+    fr4:            {base: [0.37, 0.39, 0.10], metallic: 0.0, roughness: 0.70}   # the board edge
   material_looks:               # Inventor appearance -> look, the fallback
     PolishedBrushedVersion11: aluminium
     AluminumPolished: aluminium
@@ -161,24 +198,26 @@ views:
     subject: all
     camera: {kind: ortho, direction: [0, 0, 1], fill: 0.92}
   - id: boards-in-place
-    subject: boards
-    boards: true
+    subject: boards:joystick-board      # the two controller boards; the camera board is in rig-with-boards-iso
+    boards: [joystick-board]            # true shows every board; a list, only those
     camera: {kind: perspective, direction: [-1.0, 0.35, 0.55], fill: 0.80, aspect: [3, 2]}
   - id: station-iso
     subject: station:right
     camera: {kind: perspective, direction: [-1.0, 0.6, 0.9], fill: 0.88, aspect: [4, 3]}
+  # The exploded views look across the lever axis (a small z component), so
+  # the parts spread along it read side by side instead of piling up.
   - id: station-exploded-25
     subject: station:right
     explode: 0.25
-    camera: {kind: perspective, direction: [-1.0, 0.6, 0.9], fill: 0.88, aspect: [4, 3]}
+    camera: {kind: perspective, direction: [-1.0, 0.5, 0.45], fill: 0.90, aspect: [4, 3]}
   - id: station-exploded-50
     subject: station:right
     explode: 0.5
-    camera: {kind: perspective, direction: [-1.0, 0.6, 0.9], fill: 0.88, aspect: [4, 3]}
+    camera: {kind: perspective, direction: [-1.0, 0.5, 0.45], fill: 0.90, aspect: [4, 3]}
   - id: station-exploded-100
     subject: station:right
     explode: 1.0
-    camera: {kind: perspective, direction: [-1.0, 0.6, 0.9], fill: 0.88, aspect: [4, 3]}
+    camera: {kind: perspective, direction: [-1.0, 0.5, 0.45], fill: 0.90, aspect: [4, 3]}
   # One view per registry entry with `render: true`: the entry's right-station
   # instance opaque, the rest of that station and the base plate ghosted, the
   # left station hidden, the camera framed on the entry.
