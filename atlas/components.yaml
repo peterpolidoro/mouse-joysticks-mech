@@ -392,7 +392,11 @@
   kind: board
   station: rig
   repository: camera-gpio-interface-pcb
-  tag: v1.0
+  # The repository has no tag yet (the choice is between 5ddb425, which has
+  # the design and the renders, and d0a9a7e, which the manual pins and which
+  # has docs/interface-map.md). Until it is tagged, main, so the boards page's
+  # picture and links resolve; then v1.0 here and regenerate.
+  tag: main
   model: atlas/boards/camera-gpio-interface-pcb.glb
   description: Between pyControl and the three Blackfly S cameras; strobes and sync to the OneBox. Rig 1 only.
   docs: [camera-gpio-interface-pcb/README.md]

@@ -113,7 +113,8 @@ def boards(reg):
          "The rig's two circuit boards. Each has its own repository with the schematic,",
          "the layout, the fabrication package, the generated documentation and the",
          "bring-up record; this page is the door to them. The pictures are the board",
-         "repositories' own renders at the tagged revision.", ""]
+         "repositories' own renders at the tagged revision, or at `main` where the",
+         "repository has no tag yet.", ""]
     for e in reg:
         if e["kind"] != "board" or not e.get("repository"):
             continue
@@ -123,7 +124,7 @@ def boards(reg):
         L += [f"## {e['name']}", "", e["description"].strip(), "",
               f"![{e['name']}, isometric]({raw}/iso-front-left.png)", "",
               f"| | |", "| --- | --- |",
-              f"| Repository | [{repo}]({base}) at `{tag}` |",
+              f"| Repository | [{repo}]({base}) at `{tag}`{' (not yet tagged)' if tag == 'main' else ''} |",
               f"| Where it sits | {'one per station, under the mechanism in the placement study' if e['station'] == 'both' else 'one per rig, between pyControl and the cameras (Rig 1 only)'} |",
               f"| Start with | [README]({base}/blob/{tag}/README.md), [interface map]({base}/blob/{tag}/docs/interface-map.md) |",
               f"| Generated documentation | [schematic, renders, BOM, geometry]({base}/blob/{tag}/docs/generated/README.md) |",

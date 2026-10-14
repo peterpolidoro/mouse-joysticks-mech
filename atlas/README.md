@@ -8,7 +8,7 @@ or in the generated pages is edited by hand.
 | --- | --- |
 | `components.yaml` | the component registry: every part, board, cable and external endpoint of the rig, with its glTF nodes, vendor part number, datasheet, board connector, schematic block, firmware files and protocol verbs. The header explains the fields. |
 | `scene.yaml` | the scene: units and frame, which glTF root is which station, where the boards stand (a placement study, not a fixture), the exploded-view step, the studio lighting, the palette of finishes (`looks`) and the camera of every view |
-| `build.py` | reads both files and the glTF, resolves every registry pattern to node names (an unmatched pattern is an error), expands the per-part view and writes `job.json` for Blender; `--check` compares `docs/renders/manifest.json` with the inputs' hashes |
+| `build.py` | reads both files and the glTF, resolves every registry pattern to node names (an unmatched pattern is an error), expands the per-part view and writes `job.json` for Blender; `--check` compares `docs/renders/manifest.json` with the inputs' hashes (the registry counted by its render fields only, `RENDER_FIELDS`, so a documentation edit does not flag the renders) |
 | `render.py` | runs inside Blender (the `bpy` wheel or a Blender binary): imports the models, gives every part its finish, lights the studio, and per view sets the subject, the isolation, the explode offsets (from the parts' bounding boxes, so that neighbours clear each other by `explode.gap`), the floor and the camera, renders a PNG and writes `docs/renders/hotspots/<view>.json` (projected pixel boxes and world centres of every registry entry); `--model` exports the assembled model with these finishes as `docs/model/mouse-joysticks.glb` for the site's viewer |
 | `bom.py` | the mechanical bill of materials counted from the glTF through the registry, to `docs/bom-mechanical.md` and `.csv`; `--check` lists part nodes no entry covers |
 | `boards/` | the two boards' glTF exports from their KiCad layouts, the FFC socket mesh that stands in for their missing model, with `PROVENANCE.md` |
@@ -36,7 +36,8 @@ A view takes two to three minutes at the committed quality (the hero at its
 larger size a little longer), a preview fifteen seconds.
 `docs/renders/manifest.json` records the SHA-256 of every input, and
 `check` reports stale renders without rendering, so the renders regenerate
-only when the model, the registry, the scene or the scripts change. When a
+only when the model, the registry's render fields, the scene or the scripts
+change. When a
 change touches only some views (a camera, a view's own switches),
 `render-views` re-renders those alone and updates the manifest; it also
 records them, and `check` lists them, as a reminder that the other renders

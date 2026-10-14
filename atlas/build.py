@@ -49,14 +49,26 @@ def sha256(path):
     return h.hexdigest()
 
 
-def inputs(scene):
-    files = [ROOT / scene["model"], ROOT / "atlas/components.yaml", ROOT / "atlas/scene.yaml",
-             ROOT / "atlas/build.py", ROOT / "atlas/render.py"]
+# The registry fields the renders depend on. `inputs` hashes the registry
+# projected onto these, so an edit to a part's documentation (docs, vendor,
+# firmware, connectors, a repository tag) does not flag every render stale.
+# A field render.py or the view expansion above starts reading goes here.
+RENDER_FIELDS = ("id", "name", "kind", "station", "gltf_nodes", "look",
+                 "looks_by_material", "looks_by_node", "explode", "render")
+
+
+def inputs(scene, registry):
+    """SHA-256 of everything the renders come from: the model, the board
+    models, the scene, the two scripts, and the registry's render fields."""
+    files = [ROOT / scene["model"], ROOT / "atlas/scene.yaml", ROOT / "atlas/build.py", ROOT / "atlas/render.py"]
     for b in scene.get("boards", {}).values():
         p = ROOT / b["file"]
         if p.exists():
             files.append(p)
-    return {str(p.relative_to(ROOT)): sha256(p) for p in files}
+    h = {str(p.relative_to(ROOT)): sha256(p) for p in files}
+    proj = [{k: e[k] for k in RENDER_FIELDS if k in e} for e in registry]
+    h["atlas/components.yaml"] = hashlib.sha256(json.dumps(proj, sort_keys=True).encode()).hexdigest()
+    return h
 
 
 def build(scene, registry, gltf):
@@ -108,7 +120,7 @@ def main():
         if not man.exists():
             print("docs/renders/manifest.json missing"); return 1
         old = json.load(open(man)).get("inputs", {})
-        new = inputs(scene)
+        new = inputs(scene, registry)
         stale = [k for k in new if old.get(k) != new[k]] + [k for k in old if k not in new]
         if stale:
             print("renders stale; changed inputs:", *stale, sep="\n  "); return 1
@@ -122,7 +134,7 @@ def main():
         print(len(job["views"]), "views:", " ".join(v["id"] for v in job["views"]))
         return 0
     out = ROOT / "atlas/job.json"
-    job["inputs"] = inputs(scene)
+    job["inputs"] = inputs(scene, registry)
     out.write_text(json.dumps(job, indent=1))
     print(f"wrote {out.relative_to(ROOT)}: {len(job['entries'])} entries, {len(job['views'])} views")
     return 0

@@ -3,7 +3,8 @@
 The rig's two circuit boards. Each has its own repository with the schematic,
 the layout, the fabrication package, the generated documentation and the
 bring-up record; this page is the door to them. The pictures are the board
-repositories' own renders at the tagged revision.
+repositories' own renders at the tagged revision, or at `main` where the
+repository has no tag yet.
 
 ## Joystick controller board
 
@@ -40,13 +41,13 @@ cameras.
 
 Between pyControl and the three Blackfly S cameras; strobes and sync to the OneBox. Rig 1 only.
 
-![Camera GPIO interface board, isometric](https://raw.githubusercontent.com/peterpolidoro/camera-gpio-interface-pcb/v1.0/docs/generated/3d/iso-front-left.png)
+![Camera GPIO interface board, isometric](https://raw.githubusercontent.com/peterpolidoro/camera-gpio-interface-pcb/main/docs/generated/3d/iso-front-left.png)
 
 | | |
 | --- | --- |
-| Repository | [camera-gpio-interface-pcb](https://github.com/peterpolidoro/camera-gpio-interface-pcb) at `v1.0` |
+| Repository | [camera-gpio-interface-pcb](https://github.com/peterpolidoro/camera-gpio-interface-pcb) at `main` (not yet tagged) |
 | Where it sits | one per rig, between pyControl and the cameras (Rig 1 only) |
-| Start with | [README](https://github.com/peterpolidoro/camera-gpio-interface-pcb/blob/v1.0/README.md), [interface map](https://github.com/peterpolidoro/camera-gpio-interface-pcb/blob/v1.0/docs/interface-map.md) |
-| Generated documentation | [schematic, renders, BOM, geometry](https://github.com/peterpolidoro/camera-gpio-interface-pcb/blob/v1.0/docs/generated/README.md) |
-| Fabrication | [the package the boards were ordered from](https://github.com/peterpolidoro/camera-gpio-interface-pcb/tree/v1.0/fab) |
+| Start with | [README](https://github.com/peterpolidoro/camera-gpio-interface-pcb/blob/main/README.md), [interface map](https://github.com/peterpolidoro/camera-gpio-interface-pcb/blob/main/docs/interface-map.md) |
+| Generated documentation | [schematic, renders, BOM, geometry](https://github.com/peterpolidoro/camera-gpio-interface-pcb/blob/main/docs/generated/README.md) |
+| Fabrication | [the package the boards were ordered from](https://github.com/peterpolidoro/camera-gpio-interface-pcb/tree/main/fab) |
 
