@@ -6,7 +6,7 @@ click a part, and its page says what it is, which connector and circuit it
 meets, and which firmware drives it. The numbers match the drawing below
 the model.
 
-<model-viewer id="rig" src="model/mouse-joysticks.glb" alt="The two-joystick assembly" camera-controls
+<model-viewer id="rig" src="model/mouse-joysticks.glb?v=8803bd427600" alt="The two-joystick assembly" camera-controls
  camera-orbit="-55deg 70deg auto" field-of-view="25deg" shadow-intensity="0.6" exposure="1.1"
  style="width:100%;height:540px;background:#fff;border-radius:8px">
   <button class="hotspot" slot="hotspot-lever" data-position="-0.035 0.1121 0.0121" data-normal="0 1 0" data-href="components/lever/" title="Joystick lever">1</button>
@@ -36,7 +36,7 @@ document.querySelectorAll('#rig .hotspot').forEach(b => b.addEventListener('clic
 The same view as a drawing, for a browser without WebGL or for printing;
 the numbers are links:
 
-<object data="renders/rig-iso.svg" type="image/svg+xml" style="width:100%"></object>
+<object data="renders/rig-iso.svg?v=9c193e4600fc" type="image/svg+xml" style="width:100%"></object>
 
 | # | Part | | # | Part |
 | ---: | --- | --- | ---: | --- |

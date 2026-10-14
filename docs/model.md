@@ -4,7 +4,12 @@
 Inventor 2025 assembly `Dual Lever Assembly` (2026-07-22). The STEP is the
 geometry to measure or modify; the glTF is what the renders and the viewer
 load, and it carries the assembly tree with the Inventor product names as
-node names.
+node names. The viewer on the [front page](index.md) shows
+`docs/model/mouse-joysticks.glb` instead: the same geometry, exported from
+the render pipeline with the atlas finishes applied (`pixi run model`),
+because the source file carries nothing beyond Inventor's appearance names,
+which put a white steel on the black gears and a blue on the aluminium
+plate.
 
 ## Frame and units
 

@@ -14,6 +14,7 @@ firmware it meets.
 | --- | --- | --- | --- |
 | `mouse-joysticks.stp` | STEP AP214 | 22.6 MB | Open in FreeCAD, Fusion, Inventor, SolidWorks or Onshape to measure, mate against or modify |
 | `mouse-joysticks.glb` | glTF 2.0 binary | 11.3 MB | Open in any glTF viewer or in Blender to look at the assembly |
+| `docs/model/mouse-joysticks.glb` | glTF 2.0 binary | | The same assembly with the finishes of the renders, exported for the viewer on [the atlas site](https://peterpolidoro.github.io/mouse-joysticks-mech/) |
 | `docs/renders/` | PNG | | Renders of the assembly, one station, exploded views and every part in isolation, generated from the model ([how](atlas/README.md)); the same pages and pictures make [the atlas site](https://peterpolidoro.github.io/mouse-joysticks-mech/) |
 | `docs/` | Markdown | | [One station](docs/station.md), [the parts](docs/components/README.md), [the mechanical BOM](docs/bom-mechanical.md), [the model's frame and units](docs/model.md) |
 | `atlas/` | YAML, Python | | The part registry and the scripts that generate the renders and pages |

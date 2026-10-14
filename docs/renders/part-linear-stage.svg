@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 1200" width="1600" height="1200">
 <style>.hs rect{fill:transparent;stroke:transparent;stroke-width:2}.hs:hover rect{stroke:#d9480f;fill:rgba(217,72,15,.08)}.hs text{font:bold 20px sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}.hs circle{fill:#d9480f;stroke:#fff;stroke-width:1.5}</style>
-<image href="part-linear-stage.png" width="1600" height="1200"/>
+<image href="part-linear-stage.png?v=1ef6a54ab81f" width="1600" height="1200"/>
 <a class="hs" xlink:href="../components/limit-switch/" href="../components/limit-switch/"><title>Limit switch</title><rect x="627" y="15" width="110" height="131"/><circle cx="646" cy="34" r="19"/><text x="646" y="34">1</text></a>
 <a class="hs" xlink:href="../components/brake/" href="../components/brake/"><title>Magnetic particle brake</title><rect x="433" y="25" width="355" height="305"/><circle cx="452" cy="44" r="19"/><text x="452" y="44">2</text></a>
 <a class="hs" xlink:href="../components/shaft-couplers/" href="../components/shaft-couplers/"><title>Shaft couplers</title><rect x="578" y="40" width="252" height="314"/><circle cx="597" cy="59" r="19"/><text x="597" y="59">3</text></a>

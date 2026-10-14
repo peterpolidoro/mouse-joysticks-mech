@@ -9,9 +9,23 @@ entry in frame with a link to its page, and the legend as a Markdown table in
 docs/renders/<view>.callouts.md. The default link is the site's page for
 the part, relative to the SVG's place under docs/renders/. On a rig view the left station's parts are the
 mirror of the right's, so only the right station and the rig-level parts are
-numbered; a station or part view numbers what it shows.
+numbered; a station or part view numbers what it shows. The image reference
+carries the PNG's content hash as a query (`<view>.png?v=...`): GitHub Pages
+caches every file for ten minutes and a reload does not refetch what an
+embedded SVG loads, so a changed render must be a new URL.
 """
-import argparse, json, pathlib, sys
+import argparse, hashlib, json, pathlib, sys
+
+
+def vtag(*paths):
+    """A short content hash of the files, for cache-busting URLs; empty if one is missing."""
+    h = hashlib.sha256()
+    for p in paths:
+        p = pathlib.Path(p)
+        if not p.exists():
+            return ""
+        h.update(p.read_bytes())
+    return h.hexdigest()[:12]
 
 
 def select_items(hs, view):
@@ -36,10 +50,11 @@ def overlay(view_dir, view, link):
     W, H = hs["width"], hs["height"]
     items = select_items(hs, view)
     r = max(9, round(min(W, H) * 0.016))
+    tag = vtag(view_dir / f"{view}.png")
     lines = [f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 {W} {H}" width="{W}" height="{H}">',
              "<style>.hs rect{fill:transparent;stroke:transparent;stroke-width:2}.hs:hover rect{stroke:#d9480f;fill:rgba(217,72,15,.08)}"
              ".hs text{font:bold %dpx sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}.hs circle{fill:#d9480f;stroke:#fff;stroke-width:1.5}</style>" % int(r * 1.1),
-             f'<image href="{view}.png" width="{W}" height="{H}"/>']
+             f'<image href="{view}.png{"?v=" + tag if tag else ""}" width="{W}" height="{H}"/>']
     for i, e in enumerate(items, 1):
         x0, y0, x1, y1 = e["box_px"]
         href = link.format(id=e["id"], station=e["station"])

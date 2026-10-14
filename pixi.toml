@@ -25,8 +25,8 @@ bom = { cmd = "python atlas/bom.py", description = "docs/bom-mechanical.md from 
 pages = { cmd = "python atlas/pages.py && python atlas/site_pages.py", description = "The component, station and site pages from the registry" }
 overlay = { cmd = "python atlas/overlay.py docs/renders", description = "Clickable SVG overlays and callout legends from the hotspot files" }
 generate = { depends-on = ["bom", "pages", "overlay"], description = "Everything generated except the renders" }
-site = { cmd = "mkdocs build && mkdir -p site/model && cp mouse-joysticks.glb atlas/boards/*.glb site/model/", depends-on = ["generate"], description = "Build the atlas site into site/" }
-serve = { cmd = "mkdocs serve", description = "Serve the site locally (the model files are served only after `pixi run site`)" }
+site = { cmd = "mkdocs build", depends-on = ["generate"], description = "Build the atlas site into site/" }
+serve = { cmd = "mkdocs serve", description = "Serve the site locally" }
 
 [feature.render.dependencies]
 python = "3.11.*"          # the bpy wheels are built for 3.11
@@ -36,7 +36,8 @@ pyyaml = ">=6"
 bpy = ">=4.5,<4.6"
 
 [feature.render.tasks]
-render = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json docs/renders", description = "Render every view into docs/renders (about an hour)" }
+render = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json docs/renders --model docs/model/mouse-joysticks.glb", description = "Render every view into docs/renders and export the viewer's model (about an hour)" }
+model = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json docs/renders --no-views --model docs/model/mouse-joysticks.glb", description = "Export the model with the atlas finishes for the site's viewer, docs/model/mouse-joysticks.glb (a minute)" }
 preview = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json tmp/preview --preview --views", description = "Low-quality renders of the named views into tmp/preview, e.g. `pixi run preview rig-iso,part-brake`" }
 render-views = { cmd = "python atlas/build.py && python atlas/render.py atlas/job.json docs/renders --views", description = "Full-quality renders of the named views only into docs/renders (the manifest records them as rendered alone), e.g. `pixi run render-views boards-in-place`" }
 

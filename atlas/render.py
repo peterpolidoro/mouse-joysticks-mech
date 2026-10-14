@@ -5,8 +5,11 @@ registry (read off photographs of the real parts), a three-light studio with a
 matte floor, AgX tone mapping; isolation views draw the subject in its finish
 with a dark outline over unlit grey silhouettes of the rest (Freestyle).
 
-    blender -b --python atlas/render.py -- atlas/job.json docs/renders/ [--views a,b] [--preview]
-    python atlas/render.py atlas/job.json docs/renders/ [--views a,b] [--preview]   # with the bpy wheel
+    blender -b --python atlas/render.py -- atlas/job.json docs/renders/ [--views a,b] [--preview] [--model PATH] [--no-views]
+    python atlas/render.py atlas/job.json docs/renders/ [--views a,b] [--preview] [--model PATH] [--no-views]   # with the bpy wheel
+
+`--model PATH` also exports the assembled model with these finishes as a
+GLB for the site's <model-viewer> (`--no-views` exports it alone).
 
 Reads the job atlas/build.py wrote (no PyYAML inside Blender), imports the
 mechanism and the board models, and for every view sets the subject, the
@@ -685,6 +688,29 @@ class Scene:
                                        "size_gltf": [round(v, 4) for v in G_inv(mx - mn)]})
         return out
 
+    def export_model(self, path, boards=False):
+        """The assembled model with the atlas finishes, for the site's
+        <model-viewer>: every mechanism mesh at rest in its look, the boards
+        only if asked, no lights, camera or floor. The source glTF carries
+        Inventor's appearance names and nothing else, so the viewer showed
+        white gears and a blue plate while the renders had the photographed
+        finishes. Blender's exporter writes Y up, so the file is in the
+        source model's frame and the hotspot centres apply unchanged."""
+        self.restore()
+        objs = [o for o in self.all_objs if not o.hide_render and o is not self.floor
+                and (boards or o not in self.board_objs)]
+        for o in bpy.context.view_layer.objects:
+            o.select_set(False)
+        for o in objs:
+            o.select_set(True)
+        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+        bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True,
+                                  export_apply=True, export_yup=True, export_materials="EXPORT",
+                                  export_lights=False, export_cameras=False, export_animations=False,
+                                  export_skins=False, export_morph=False, export_extras=False)
+        n_mat = len({s.material for o in objs for s in o.material_slots if s.material})
+        log(f"model: {len(objs)} meshes, {n_mat} materials -> {path} ({os.path.getsize(path) / 1e6:.1f} MB)")
+
     def render_view(self, v, outdir, preview):
         r = self.job["render"]
         self.restore()
@@ -737,36 +763,46 @@ class Scene:
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
     if len(argv) < 2:
-        raise SystemExit("usage: render.py JOB.json OUTDIR [--views a,b] [--preview]")
+        raise SystemExit("usage: render.py JOB.json OUTDIR [--views a,b] [--preview] [--model PATH] [--no-views]")
     job_path, outdir = argv[0], argv[1]
-    only = None; preview = False; i = 2
+    only = None; preview = False; model = None; no_views = False; i = 2
     while i < len(argv):
         if argv[i] == "--views":
             only = argv[i + 1].split(","); i += 2
         elif argv[i] == "--preview":
             preview = True; i += 1
+        elif argv[i] == "--model":
+            model = argv[i + 1]; i += 2
+        elif argv[i] == "--no-views":
+            no_views = True; i += 1
         else:
             raise SystemExit(f"unknown argument {argv[i]}")
     job = json.load(open(job_path))
     os.makedirs(outdir, exist_ok=True)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = Scene(job, job["root"])
-    views = [v for v in job["views"] if only is None or v["id"] in only]
-    log(f"{len(views)} views, preview={preview}")
+    views = [] if no_views else [v for v in job["views"] if only is None or v["id"] in only]
+    log(f"{len(views)} views, preview={preview}" + (f", model -> {model}" if model else ""))
     for v in views:
         scene.render_view(v, outdir, preview)
-    if not preview:
+    if model:
+        scene.export_model(model)
+    if not preview and (views or model):
         # The manifest says which inputs the renders came from. A full render
-        # writes it afresh; a `--views` render into the same directory updates
-        # the inputs and records the views rendered alone, so `build.py --check`
-        # can say that the other renders predate the current inputs.
+        # (every view, and the model when asked) writes it afresh; a `--views`
+        # render or a model export alone into the same directory updates the
+        # inputs and records what was made alone, so `build.py --check` can
+        # say that the other renders predate the current inputs.
         path = os.path.join(outdir, "manifest.json")
         man = {"inputs": job.get("inputs", {}), "views": [v["id"] for v in job["views"]], "blender": bpy.app.version_string}
-        if only is not None:
+        if model:
+            man["model"] = model
+        if only is not None or no_views:
             old = json.load(open(path)) if os.path.exists(path) else {}
-            partial = set(old.get("partial_renders", [])) | {v["id"] for v in views}
+            partial = set(old.get("partial_renders", [])) | {v["id"] for v in views} | ({"model"} if model else set())
             man["partial_renders"] = sorted(partial)
-            log(f"manifest: inputs updated after rendering {len(views)} of {len(job['views'])} views alone")
+            man.setdefault("model", old.get("model"))
+            log(f"manifest: inputs updated after making {', '.join(sorted(partial))} alone")
         with open(path, "w") as f:
             json.dump(man, f, indent=1)
     log("done")

@@ -4,7 +4,7 @@
   "atlas/components.yaml": "5599f7be56debe4ca1f6bc8db73ebfe35569e886f5af03c2ef59532e8cf72b47",
   "atlas/scene.yaml": "118d0b1cf2fab1483938d273544bf23af0149f19656b4f901cd1fba796fa80fa",
   "atlas/build.py": "2d00fac2df2401272a9603697567eb48f2b59a8f4eba0bf94d374f74eca35888",
-  "atlas/render.py": "cd7de3a215611b380c422ef444566d85d0ef8bbaaa7635c2aaf7e8d97ab9d62f",
+  "atlas/render.py": "5b19640895fe4a7a11206262b18b2c2cecaee8d795a650cd07c2beeff75b35a1",
   "atlas/boards/mouse-joystick-pcb.glb": "7afe8a827af882fe978a3cc75d0212202d48d2f2de401cbf815295f76cbf9b65",
   "atlas/boards/camera-gpio-interface-pcb.glb": "fe40739c11c013db5be54aab0e84324e8f04a2e1ad6fc05c092738997961ccbf"
  },
@@ -36,7 +36,9 @@
   "part-dual-base-plate"
  ],
  "blender": "4.5.14 LTS",
+ "model": "docs/model/mouse-joysticks.glb",
  "partial_renders": [
-  "boards-in-place"
+  "boards-in-place",
+  "model"
  ]
 }

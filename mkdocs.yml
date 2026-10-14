@@ -1,5 +1,6 @@
 # The atlas site: built by `pixi run site` or the Pages workflow from docs/.
-# The model files are not under docs/; the build copies them to site/model/.
+# The viewer's model is docs/model/mouse-joysticks.glb, exported with the
+# atlas finishes by `pixi run model`; mkdocs copies it with the pages.
 site_name: Mouse joystick rig atlas
 site_description: The two-joystick rig for a head-fixed mouse, part by part, with the boards and firmware that drive it.
 site_url: https://peterpolidoro.github.io/mouse-joysticks-mech/

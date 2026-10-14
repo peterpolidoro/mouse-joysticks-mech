@@ -4,11 +4,18 @@ boards, the wiring and the operating pointers.
 
     python3 atlas/site_pages.py     # writes docs/index.md, docs/boards.md, docs/wiring.md, docs/operate.md
 
-The front page embeds `mouse-joysticks.glb` in Google's <model-viewer> with
-one hotspot per part that has a callout on the hero render, at the part's
-centre from docs/renders/hotspots/rig-iso.json and numbered as the overlay
-numbers it, and below it the clickable SVG overlay for readers without WebGL.
-The model file is not under docs/: the site build copies it to site/model/.
+The front page embeds `docs/model/mouse-joysticks.glb` (the model exported
+from the render pipeline with the atlas finishes, `pixi run model`; the
+source glTF has only Inventor's appearance names) in Google's <model-viewer>
+with one hotspot per part that has a callout on the hero render, at the
+part's centre from docs/renders/hotspots/rig-iso.json and numbered as the
+overlay numbers it, and below it the clickable SVG overlay for readers
+without WebGL.
+The model and overlay URLs carry a content hash (`?v=`), so a browser that
+cached the old file (GitHub Pages allows ten minutes, and a reload does not
+refetch what an <object> embeds) fetches the new one. The overlay's tag is
+taken from its inputs, the PNG and the hotspot file, so it does not depend
+on whether overlay.py has run before this script.
 Component pages come from pages.py; this script only writes what the site
 needs beyond them.
 """
@@ -16,7 +23,7 @@ import json, pathlib, sys
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from overlay import select_items  # noqa: E402
+from overlay import select_items, vtag  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PCB = "https://github.com/peterpolidoro/mouse-joystick-pcb"
@@ -30,12 +37,14 @@ RAW = "https://raw.githubusercontent.com/peterpolidoro"
 def index(reg, by_id):
     hs = json.load(open(ROOT / "docs/renders/hotspots/rig-iso.json"))
     items = select_items(hs, "rig-iso")
+    svg_v = vtag(ROOT / "docs/renders/rig-iso.png", ROOT / "docs/renders/hotspots/rig-iso.json", ROOT / "atlas/overlay.py")
+    glb_v = vtag(ROOT / "docs/model/mouse-joysticks.glb")
     L = ["# The joystick rig", "",
          "Two motorised joysticks for a head-fixed mouse, each driven by its own",
          "controller board under pyControl. This site is the map: turn the model,",
          "click a part, and its page says what it is, which connector and circuit it",
          "meets, and which firmware drives it. The numbers match the drawing below", "the model.", "",
-         '<model-viewer id="rig" src="model/mouse-joysticks.glb" alt="The two-joystick assembly" camera-controls',
+         f'<model-viewer id="rig" src="model/mouse-joysticks.glb?v={glb_v}" alt="The two-joystick assembly" camera-controls',
          ' camera-orbit="-55deg 70deg auto" field-of-view="25deg" shadow-intensity="0.6" exposure="1.1"',
          ' style="width:100%;height:540px;background:#fff;border-radius:8px">']
     for i, e in enumerate(items, 1):
@@ -52,7 +61,7 @@ def index(reg, by_id):
           "</style>", "",
           "The same view as a drawing, for a browser without WebGL or for printing;",
           "the numbers are links:", "",
-          '<object data="renders/rig-iso.svg" type="image/svg+xml" style="width:100%"></object>', "",
+          f'<object data="renders/rig-iso.svg?v={svg_v}" type="image/svg+xml" style="width:100%"></object>', "",
           "| # | Part | | # | Part |", "| ---: | --- | --- | ---: | --- |"]
     half = (len(items) + 1) // 2
     for k in range(half):

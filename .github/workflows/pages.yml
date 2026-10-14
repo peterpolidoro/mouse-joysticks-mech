@@ -1,6 +1,7 @@
 # Builds the atlas site from docs/ and deploys it to GitHub Pages.
-# Renders are committed (Blender does not run here); the generated pages are
-# committed too, so the build is mkdocs plus copying the model files.
+# The renders and the viewer's model (docs/model/mouse-joysticks.glb) are
+# committed (Blender does not run here); the generated pages are committed
+# too, so the build is mkdocs alone.
 # Pages must be set to "GitHub Actions" as its source in the repository
 # settings for the deploy step to work.
 name: pages
@@ -25,7 +26,6 @@ jobs:
           python-version: "3.12"
       - run: pip install "mkdocs-material>=9.5,<10" pyyaml
       - run: mkdocs build
-      - run: mkdir -p site/model && cp mouse-joysticks.glb atlas/boards/*.glb site/model/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

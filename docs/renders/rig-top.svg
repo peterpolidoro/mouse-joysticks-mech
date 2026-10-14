@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 800" width="1600" height="800">
 <style>.hs rect{fill:transparent;stroke:transparent;stroke-width:2}.hs:hover rect{stroke:#d9480f;fill:rgba(217,72,15,.08)}.hs text{font:bold 14px sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}.hs circle{fill:#d9480f;stroke:#fff;stroke-width:1.5}</style>
-<image href="rig-top.png" width="1600" height="800"/>
+<image href="rig-top.png?v=937dd100bca1" width="1600" height="800"/>
 <a class="hs" xlink:href="../components/rotation-plate/" href="../components/rotation-plate/"><title>Rotation plate</title><rect x="64" y="111" width="755" height="590"/><circle cx="77" cy="124" r="13"/><text x="77" y="124">1</text></a>
 <a class="hs" xlink:href="../components/linear-stage/" href="../components/linear-stage/"><title>Linear stage</title><rect x="214" y="248" width="447" height="276"/><circle cx="227" cy="261" r="13"/><text x="227" y="261">2</text></a>
 <a class="hs" xlink:href="../components/torque-sensor-plate/" href="../components/torque-sensor-plate/"><title>Torque sensor plate</title><rect x="304" y="275" width="57" height="232"/><circle cx="316" cy="288" r="13"/><text x="316" y="288">3</text></a>

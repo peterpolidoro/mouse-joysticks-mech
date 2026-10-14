@@ -9,7 +9,7 @@ or in the generated pages is edited by hand.
 | `components.yaml` | the component registry: every part, board, cable and external endpoint of the rig, with its glTF nodes, vendor part number, datasheet, board connector, schematic block, firmware files and protocol verbs. The header explains the fields. |
 | `scene.yaml` | the scene: units and frame, which glTF root is which station, where the boards stand (a placement study, not a fixture), the exploded-view step, the studio lighting, the palette of finishes (`looks`) and the camera of every view |
 | `build.py` | reads both files and the glTF, resolves every registry pattern to node names (an unmatched pattern is an error), expands the per-part view and writes `job.json` for Blender; `--check` compares `docs/renders/manifest.json` with the inputs' hashes |
-| `render.py` | runs inside Blender (the `bpy` wheel or a Blender binary): imports the models, gives every part its finish, lights the studio, and per view sets the subject, the isolation, the explode offsets (from the parts' bounding boxes, so that neighbours clear each other by `explode.gap`), the floor and the camera, renders a PNG and writes `docs/renders/hotspots/<view>.json` (projected pixel boxes and world centres of every registry entry) |
+| `render.py` | runs inside Blender (the `bpy` wheel or a Blender binary): imports the models, gives every part its finish, lights the studio, and per view sets the subject, the isolation, the explode offsets (from the parts' bounding boxes, so that neighbours clear each other by `explode.gap`), the floor and the camera, renders a PNG and writes `docs/renders/hotspots/<view>.json` (projected pixel boxes and world centres of every registry entry); `--model` exports the assembled model with these finishes as `docs/model/mouse-joysticks.glb` for the site's viewer |
 | `bom.py` | the mechanical bill of materials counted from the glTF through the registry, to `docs/bom-mechanical.md` and `.csv`; `--check` lists part nodes no entry covers |
 | `boards/` | the two boards' glTF exports from their KiCad layouts, the FFC socket mesh that stands in for their missing model, with `PROVENANCE.md` |
 | `step2obj.py` | FreeCAD script that tessellates a STEP model to OBJ, one group per solid; made the socket mesh |
@@ -26,6 +26,7 @@ denoiser and its output is grainy).
 pixi run render                            # every view into docs/renders, about an hour
 pixi run preview rig-iso,part-brake        # low-quality versions of named views into tmp/preview
 pixi run render-views boards-in-place      # full-quality renders of named views only, into docs/renders
+pixi run model                             # the viewer's model with the atlas finishes, docs/model/mouse-joysticks.glb
 pixi run generate                          # BOM, pages, overlays
 pixi run site                              # the site into site/
 pixi run check                             # are the renders current, is every part node covered?
@@ -79,9 +80,12 @@ seen through the couplers and torque sensor rather than hidden behind them.
 ## The site
 
 `mkdocs.yml` builds the pages under `docs/` into `site/` with the Material
-theme; `pixi run site` runs every generator first and then copies the model
-files (`mouse-joysticks.glb`, `atlas/boards/*.glb`) to `site/model/`, where
-the front page's `<model-viewer>` loads them from the same origin. The
+theme; `pixi run site` runs every generator first. The front page's
+`<model-viewer>` loads `docs/model/mouse-joysticks.glb`, the model exported
+from the render pipeline with the atlas finishes (`pixi run model`, and
+every full render writes it too), since the source glTF carries only
+Inventor's appearance names; mkdocs copies it to `site/model/` with the
+pages. The
 `.github/workflows/pages.yml` workflow does the same on every push to `main`
 and deploys to GitHub Pages; it needs Pages set to "GitHub Actions" as its
 source in the repository settings. `site_pages.py` writes the front page
@@ -89,7 +93,11 @@ source in the repository settings. `site_pages.py` writes the front page
 overlay numbers them, and the clickable SVG for browsers without WebGL),
 `boards.md`, `wiring.md` and `operate.md`; `pages.py` writes the component and
 station pages. Markdown links are written relative to each page, so the same
-files read on GitHub and on the site.
+files read on GitHub and on the site. GitHub Pages serves every file with a
+ten-minute cache, and a reload does not refetch what an `<object>` embeds,
+so the front page's model file, its overlay and the PNG inside the overlay
+carry a content hash in their URLs (`?v=`): a changed render is a new URL
+and shows at once.
 
 | File | What |
 | --- | --- |
