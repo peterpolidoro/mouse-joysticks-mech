@@ -21,9 +21,10 @@
 #                       and takes the LEFT harness)
 #   connects_to board connector a cable or part reaches, by reference
 #               designator of mouse-joystick-pcb v1.0 unless `board` says otherwise
-#   block_instance  the schematic block page in the PCB repository
-#               (docs/generated/blocks/<instance>.md, kicad-libs step 2; empty
-#               until it exists, and the generators omit the link)
+#   block_instance  the schematic block (`<parent sheet>/<instance>`) whose
+#               page the PCB repository publishes on its site
+#               (https://peterpolidoro.github.io/mouse-joystick-pcb/generated/blocks/<instance>/,
+#               live since 2026-10-14); pages.py links it
 #   firmware    files, protocol verbs and events, bring-up example in
 #               mouse-joystick-firm; the circuit-to-code map reads these
 #   explode     axis and signed order for the exploded view (station frame,
@@ -392,11 +393,11 @@
   kind: board
   station: rig
   repository: camera-gpio-interface-pcb
-  # The repository has no tag yet (the choice is between 5ddb425, which has
-  # the design and the renders, and d0a9a7e, which the manual pins and which
-  # has docs/interface-map.md). Until it is tagged, main, so the boards page's
-  # picture and links resolve; then v1.0 here and regenerate.
-  tag: main
+  # v1.0 is the fabricated revision (order 1, 2026-09-26, from 5ddb425; the
+  # copper unchanged since), tagged on the documented state of 2026-10-15 as
+  # the joystick board's v1.0 was. The tag must exist on GitHub before this
+  # page is regenerated and pushed, else set main here.
+  tag: v1.0
   model: atlas/boards/camera-gpio-interface-pcb.glb
   description: Between pyControl and the three Blackfly S cameras; strobes and sync to the OneBox. Rig 1 only.
   docs: [camera-gpio-interface-pcb/README.md]

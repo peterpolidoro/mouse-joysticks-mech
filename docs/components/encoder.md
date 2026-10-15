@@ -20,7 +20,7 @@ Optical kit encoder. Its A and B channels reach the board's encoder input and ar
 
 ## Circuit
 
-Schematic block `motor_encoder_switch/quadrature_encoder_input_5v_sn74lvc2g17` on the joystick board. The block's own page is generated in the board repository (`docs/generated/blocks/`); until it exists, the [interface map](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/interface-map.md) and the [schematic PDF](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/generated/schematic/mouse-joystick-pcb-schematic.pdf) cover it.
+Schematic block `motor_encoder_switch/quadrature_encoder_input_5v_sn74lvc2g17` on the joystick board: [its page](https://peterpolidoro.github.io/mouse-joystick-pcb/generated/blocks/quadrature_encoder_input_5v_sn74lvc2g17/) on the board's site has the schematic, the parts with their sourcing, the ports and where the block sits on the board; the [interface map](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/interface-map.md) and the [schematic PDF](https://github.com/peterpolidoro/mouse-joystick-pcb/blob/v1.0/docs/generated/schematic/mouse-joystick-pcb-schematic.pdf) at the tagged revision cover the rest.
 
 ## Firmware
 

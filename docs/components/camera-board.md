@@ -5,7 +5,8 @@ Between pyControl and the three Blackfly S cameras; strobes and sync to the OneB
 | | |
 | --- | --- |
 | Where | one per rig |
-| Repository | [camera-gpio-interface-pcb](https://github.com/peterpolidoro/camera-gpio-interface-pcb) at `main` |
+| Repository | [camera-gpio-interface-pcb](https://github.com/peterpolidoro/camera-gpio-interface-pcb) at `v1.0` |
+| Site | [https://peterpolidoro.github.io/camera-gpio-interface-pcb/](https://peterpolidoro.github.io/camera-gpio-interface-pcb/): the board turning, its design blocks clickable |
 
 ## Documents
 

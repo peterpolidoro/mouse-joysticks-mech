@@ -6,7 +6,7 @@
 Each mechanical entry with `render: true` gets a page: its isolated render,
 what it is, vendor and datasheet, where it attaches and which board
 connector and cable it reaches, the schematic block page (when the PCB
-repository has generated it), the firmware files and protocol verbs that
+repository publishes it on its site), the firmware files and protocol verbs that
 touch it, the bring-up procedure that proved it, and the open questions.
 Boards, cables and external endpoints get shorter pages. Links into other
 repositories are written as GitHub URLs at the tag the registry names.
@@ -22,6 +22,15 @@ REPOS = {
     "joystick-rig": ("https://github.com/sourishmukh/joystick-rig", "main"),
 }
 BOARD_DOCS = {"mouse-joystick-pcb": "docs/interface-map.md", "camera-gpio-interface-pcb": "docs/interface-map.md"}
+# The boards' documentation sites (GitHub Pages, built from main by each repository's workflow): the front page turns
+# the board with its design blocks numbered, and generated/blocks/<instance>/ is one block's page.
+SITES = {"mouse-joystick-pcb": "https://peterpolidoro.github.io/mouse-joystick-pcb/",
+         "camera-gpio-interface-pcb": "https://peterpolidoro.github.io/camera-gpio-interface-pcb/"}
+
+
+def block_page(board, instance):
+    """The block page of INSTANCE (a `parent/instance` path or a bare instance name) on BOARD's site."""
+    return f"{SITES[board]}generated/blocks/{instance.rsplit('/', 1)[-1]}/"
 
 
 def url(ref):
@@ -62,6 +71,8 @@ def page(e, by_id):
         rows.append(("Model nodes", ", ".join(f"`{g}`" for g in e["gltf_nodes"])))
     if e.get("repository"):
         rows.append(("Repository", f"[{e['repository']}]({url(e['repository'])}) at `{e.get('tag', 'main')}`"))
+    if e.get("repository") in SITES:
+        rows.append(("Site", f"[{SITES[e['repository']]}]({SITES[e['repository']]}): the board turning, its design blocks clickable"))
     if rows:
         L += ["| | |", "| --- | --- |"] + [f"| {k} | {v} |" for k, v in rows] + [""]
     if e.get("connects_to"):
@@ -73,9 +84,10 @@ def page(e, by_id):
         L.append("")
     if e.get("block_instance"):
         L += ["## Circuit", "",
-              f"Schematic block `{e['block_instance']}` on the joystick board. The block's own page is generated in the board repository "
-              f"(`docs/generated/blocks/`); until it exists, the [interface map]({url('mouse-joystick-pcb/docs/interface-map.md')}) and the "
-              f"[schematic PDF]({url('mouse-joystick-pcb/docs/generated/schematic/mouse-joystick-pcb-schematic.pdf')}) cover it.", ""]
+              f"Schematic block `{e['block_instance']}` on the joystick board: [its page]({block_page('mouse-joystick-pcb', e['block_instance'])}) "
+              "on the board's site has the schematic, the parts with their sourcing, the ports and where the block sits on the board; "
+              f"the [interface map]({url('mouse-joystick-pcb/docs/interface-map.md')}) and the "
+              f"[schematic PDF]({url('mouse-joystick-pcb/docs/generated/schematic/mouse-joystick-pcb-schematic.pdf')}) at the tagged revision cover the rest.", ""]
     fw = e.get("firmware")
     if fw:
         L += ["## Firmware", ""]

@@ -6,6 +6,7 @@ One per station: RP2040, TMC5130A driver, brake current sink, torque bridge, ang
 | --- | --- |
 | Where | one per station |
 | Repository | [mouse-joystick-pcb](https://github.com/peterpolidoro/mouse-joystick-pcb) at `v1.0` |
+| Site | [https://peterpolidoro.github.io/mouse-joystick-pcb/](https://peterpolidoro.github.io/mouse-joystick-pcb/): the board turning, its design blocks clickable |
 
 ## Documents
 
