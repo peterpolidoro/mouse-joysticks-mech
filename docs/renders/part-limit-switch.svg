@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 1200" width="1600" height="1200">
 <style>.hs rect{fill:transparent;stroke:transparent;stroke-width:2}.hs:hover rect{stroke:#d9480f;fill:rgba(217,72,15,.08)}.hs text{font:bold 20px sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}.hs circle{fill:#d9480f;stroke:#fff;stroke-width:1.5}</style>
-<image href="part-limit-switch.png?v=65094e186ff6" width="1600" height="1200"/>
+<image href="part-limit-switch.png?v=0cebd5fd2da1" width="1600" height="1200"/>
 <a class="hs" xlink:href="../components/limit-switch/" href="../components/limit-switch/"><title>Limit switch</title><rect x="594" y="330" width="413" height="540"/><circle cx="613" cy="349" r="19"/><text x="613" y="349">1</text></a>
 </svg>

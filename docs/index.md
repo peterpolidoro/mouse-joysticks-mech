@@ -48,7 +48,7 @@ if(window.customElements)customElements.whenDefined('model-viewer').then(functio
 </script>
 </div>
 <div class="rig-2d">
-<object data="renders/rig-iso.svg?v=9c193e4600fc" type="image/svg+xml" style="width:100%"></object>
+<object data="renders/rig-iso.svg?v=1045e0d19937" type="image/svg+xml" style="width:100%"></object>
 <p class="hint">The numbers are links; in a browser with WebGL this picture is a model that turns.</p>
 </div>
 </div>

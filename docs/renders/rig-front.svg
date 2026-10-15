@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 800" width="1600" height="800">
 <style>.hs rect{fill:transparent;stroke:transparent;stroke-width:2}.hs:hover rect{stroke:#d9480f;fill:rgba(217,72,15,.08)}.hs text{font:bold 14px sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}.hs circle{fill:#d9480f;stroke:#fff;stroke-width:1.5}</style>
-<image href="rig-front.png?v=99cdee07b5b3" width="1600" height="800"/>
+<image href="rig-front.png?v=d371a9e58af1" width="1600" height="800"/>
 <a class="hs" xlink:href="../components/lever/" href="../components/lever/"><title>Joystick lever</title><rect x="836" y="98" width="29" height="226"/><circle cx="849" cy="111" r="13"/><text x="849" y="111">1</text></a>
 <a class="hs" xlink:href="../components/gear-train/" href="../components/gear-train/"><title>Spur gear pair</title><rect x="839" y="249" width="90" height="342"/><circle cx="852" cy="262" r="13"/><text x="852" y="262">2</text></a>
 <a class="hs" xlink:href="../components/motor-mount-plate/" href="../components/motor-mount-plate/"><title>Motor mount plate</title><rect x="902" y="256" width="46" height="284"/><circle cx="915" cy="268" r="13"/><text x="915" y="268">3</text></a>

@@ -11,8 +11,8 @@ or in the generated pages is edited by hand.
 | `build.py` | reads both files and the glTF, resolves every registry pattern to node names (an unmatched pattern is an error), expands the per-part view and writes `job.json` for Blender; `--check` compares `docs/renders/manifest.json` with the inputs' hashes (the registry counted by its render fields only, `RENDER_FIELDS`, so a documentation edit does not flag the renders) |
 | `render.py` | runs inside Blender (the `bpy` wheel or a Blender binary): imports the models, gives every part its finish, lights the studio, and per view sets the subject, the isolation, the explode offsets (from the parts' bounding boxes, so that neighbours clear each other by `explode.gap`), the floor and the camera, renders a PNG and writes `docs/renders/hotspots/<view>.json` (projected pixel boxes and world centres of every registry entry); `--model` exports the assembled model with these finishes as `docs/model/mouse-joysticks.glb` for the site's viewer |
 | `bom.py` | the mechanical bill of materials counted from the glTF through the registry, to `docs/bom-mechanical.md` and `.csv`; `--check` lists part nodes no entry covers |
-| `boards/` | the two boards' glTF exports from their KiCad layouts, the FFC socket mesh that stands in for their missing model, with `PROVENANCE.md` |
-| `step2obj.py` | FreeCAD script that tessellates a STEP model to OBJ, one group per solid; made the socket mesh |
+| `boards/` | the boards' published glTF models, copied from the board repositories' `docs/generated/3d/` by `boards.py` (`pixi run boards`), with `PROVENANCE.md` saying which revision each came from |
+| `boards.py` | copies each board's model from its sibling checkout, or downloads it from GitHub at a tag (`--ref`), and rewrites `boards/PROVENANCE.md` |
 
 ## Regenerating
 
@@ -114,17 +114,15 @@ and shows at once.
   (the linear stage, the base plate, the couplers' exact finish, the
   ServoCity hardware) are assumed aluminium. Correct the registry's `look`
   fields and re-render.
-- The boards' FFC sockets (`J1301`, `J501`) carry no model in the board
-  exports; the library's STEP of the socket, tessellated once to
-  `boards/FH12-50S-0.5SVA-54.obj`, stands in (`board_fixes.proxies` in
-  `scene.yaml`). The board glTFs carry KiCad's 3D-viewer default materials,
-  not the boards' finishes: the solder mask is a translucent green over a
-  yellowish body and the RJ-45 and BNC models have no material at all.
-  `board_fixes.material_looks` replaces the mask, silkscreen and body
-  materials by colour match with opaque looks (dark green, label white,
-  FR4), `missing_material_look` gives the colourless connector meshes
-  nickel, and the few remaining pure whites are capped to a light grey.
-  Copper is not in the export, so the mask is one flat green.
+- The board models are the boards' own published glTFs, with the kicad-libs
+  material palette already written in (opaque dark green mask with a clear
+  coat, FR4 body, white silkscreen, nickel on the colourless connector
+  shells, every connector present); the atlas fixes nothing about them any
+  more (2026-10-14; until then `board_fixes` in `scene.yaml` relabelled the
+  mask, body and silkscreen, gave the RJ-45 and BNC meshes nickel and stood
+  an OBJ of the FFC socket in for its missing model). Copper is not in the
+  export, so the mask is one flat green. `pixi run boards` takes the models
+  again when the boards republish them.
 
 ## Frames
 

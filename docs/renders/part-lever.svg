@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 1200" width="1600" height="1200">
 <style>.hs rect{fill:transparent;stroke:transparent;stroke-width:2}.hs:hover rect{stroke:#d9480f;fill:rgba(217,72,15,.08)}.hs text{font:bold 20px sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}.hs circle{fill:#d9480f;stroke:#fff;stroke-width:1.5}</style>
-<image href="part-lever.png?v=7456e9d9cb67" width="1600" height="1200"/>
+<image href="part-lever.png?v=514faf50bb55" width="1600" height="1200"/>
 <a class="hs" xlink:href="../components/lever/" href="../components/lever/"><title>Joystick lever</title><rect x="667" y="330" width="266" height="540"/><circle cx="686" cy="349" r="19"/><text x="686" y="349">1</text></a>
 <a class="hs" xlink:href="../components/limit-switch/" href="../components/limit-switch/"><title>Limit switch</title><rect x="1040" y="590" width="152" height="209"/><circle cx="1059" cy="609" r="19"/><text x="1059" y="609">2</text></a>
 <a class="hs" xlink:href="../components/brake/" href="../components/brake/"><title>Magnetic particle brake</title><rect x="787" y="612" width="525" height="546"/><circle cx="806" cy="630" r="19"/><text x="806" y="630">3</text></a>

@@ -29,6 +29,10 @@ rig_nodes: ["DUAL BASE PLATE:*"]
 # stands on its long edge under its station, component side facing -X, the
 # terminal-block edge up toward the mechanism. Reproduces docs/rig-layout.png
 # approximately; the enclosure decision is open and nothing here fixes it.
+# The models are the boards' own published glTFs (atlas/boards/PROVENANCE.md,
+# `pixi run boards`), with the kicad-libs material palette already in them:
+# opaque mask, body and silkscreen, nickel connector shells, every connector
+# present. Nothing about a board is fixed here any more (2026-10-14).
 # `rotation_deg` is X, Y, Z rotations about the glTF axes applied in that
 # order, before `position`. The board glTF has the board in its XZ plane,
 # component side +Y, KiCad's top edge (the terminal blocks, J1102/J1103/J1601)
@@ -50,43 +54,6 @@ boards:
     # this is a place in the picture, not a mounting position.
     instances:
       - {station: rig, position: [-0.060, -0.050, 0.208], rotation_deg: [0, -90, 90]}
-
-# KiCad's glTF export needs fixing up for a render. Its materials are the 3D
-# viewer's defaults, not the board's: the solder mask is a translucent green
-# (0.08, 0.20, 0.14 at 83 % opacity) over a yellowish FR4 body, which Cycles
-# blends into mint, and the silkscreen is white at 90 % opacity. Each is
-# matched by its exported base colour (and alpha, when the match has four
-# values) and replaced by an opaque look from the palette. Two connector
-# models, the RJ-45 and the BNC jacks, come from STEP files without colour,
-# so their meshes carry no material at all and would render Blender's default
-# white: `missing_material_look` gives them nickel. Remaining pure-white part
-# bodies (LED packages, the USB-C shell) are capped to a light grey. The
-# silkscreen mesh is one flat mesh of the legend the size of the board (kept;
-# `drop_silkscreen_faces: true` removes it). The FFC sockets have no library
-# model (a stand-in from the board repository's
-# docs/generated/mechanical/connectors.csv: millimetres from the board centre,
-# X right, Y up, on the component side).
-board_fixes:
-  drop_silkscreen_faces: false
-  white_cap: 0.70
-  match_tolerance: 0.02
-  missing_material_look: nickel
-  material_looks:
-    - {match: [0.08, 0.20, 0.14], look: solder-mask-green}    # the mask, both sides
-    - {match: [1.00, 1.00, 1.00, 0.90], look: label-white}    # the silkscreen (opaque white bodies keep alpha 1 and are capped instead)
-    - {match: [0.42, 0.45, 0.29], look: fr4}                  # the board body: visible on the edges
-  # `mesh` is the library's own STEP of the socket, tessellated to OBJ once
-  # (atlas/boards/PROVENANCE.md); `rotation_deg` is the footprint's rotation
-  # on the board; without `mesh` a box of the courtyard's size is used.
-  proxies:
-    joystick-board:
-      - {name: J1301 FFC socket, x_mm: 0.0, y_mm: -36.0, rotation_deg: 180, mesh: atlas/boards/FH12-50S-0.5SVA-54.obj,
-         looks_by_name: {"Housing*": beige-plastic, "Actuator*": black-plastic, "Leads*": stainless, "Fitting*": stainless},
-         w_mm: 29.5, h_mm: 5.6, height_mm: 3.6, look: beige-plastic}
-    camera-board:
-      - {name: J501 FFC socket, x_mm: 44.0, y_mm: -4.0, rotation_deg: 270, mesh: atlas/boards/FH12-50S-0.5SVA-54.obj,
-         looks_by_name: {"Housing*": beige-plastic, "Actuator*": black-plastic, "Leads*": stainless, "Fitting*": stainless},
-         w_mm: 5.6, h_mm: 29.5, height_mm: 3.6, look: beige-plastic}
 
 explode:
   gap: 0.020             # metres of clearance between neighbouring bounding boxes at 100 %

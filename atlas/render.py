@@ -12,7 +12,8 @@ with a dark outline over unlit grey silhouettes of the rest (Freestyle).
 GLB for the site's <model-viewer> (`--no-views` exports it alone).
 
 Reads the job atlas/build.py wrote (no PyYAML inside Blender), imports the
-mechanism and the board models, and for every view sets the subject, the
+mechanism and the board models (the boards' own published glTFs, materials
+included; atlas/boards/PROVENANCE.md), and for every view sets the subject, the
 ghosting, the explode offsets and the camera, renders a PNG and writes
 renders/hotspots/<view>.json: for each registry entry visible in the view,
 its projected pixel box and its world centre (in the glTF frame) for the
@@ -116,7 +117,6 @@ class Scene:
             self.entry_objs[e["id"]] = tops
         self.board_objs = []
         self.board_of = {}           # board mesh -> board id, for `subject: boards:<id>`
-        self.always_hidden = set()   # hidden at load (dropped faces); restore() keeps them so
         for bid, b in job["boards"].items():
             path = os.path.join(root, b["file"])
             if not os.path.exists(path) or not b.get("instances"):
@@ -139,7 +139,6 @@ class Scene:
                 for o in meshes_under(tops):
                     self.station_of[o] = inst["station"]
                     self.board_objs.append(o); self.board_of[o] = bid
-                self.fix_board(bid, e, tops, inst["station"])
                 log(f"board {bid} at {inst['station']}: {len(tops)} top nodes, size {[round(v, 3) for v in (mx - mn)]}")
         bpy.context.view_layer.update()
         self.all_objs = [o for o in bpy.data.objects if o.type == "MESH"]
@@ -155,119 +154,6 @@ class Scene:
         self.setup_isolation()
 
     # ------------------------------------------------------------ materials
-
-    def fix_board(self, bid, root, tops, station):
-        """KiCad's export, made presentable: drop the silkscreen face, cap pure
-        white bodies, and stand in for a connector that has no model.
-
-        Frames: the glTF importer has already turned the board's Y-up frame
-        into Blender's Z-up, so in the instance's local space the board lies in
-        XY with Z its normal, and the drawings' frame (centre origin, X right,
-        Y up, millimetres) maps onto it by translation and scale alone."""
-        fx = self.job.get("board_fixes", {})
-        meshes = meshes_under(tops)
-        body = None
-        for o in meshes:
-            bb = [Vector(c) for c in o.bound_box]
-            lo = Vector((min(v.x for v in bb), min(v.y for v in bb), min(v.z for v in bb)))
-            hi = Vector((max(v.x for v in bb), max(v.y for v in bb), max(v.z for v in bb)))
-            size = hi - lo
-            if size.x > 0.09 and size.y > 0.05 and size.z > 0.001:
-                body = (lo, hi)
-            if fx.get("drop_silkscreen_faces") and size.x > 0.09 and size.y > 0.05 and size.z < 0.0005:
-                mats = [sl.material for sl in o.material_slots if sl.material]
-                if mats and all(self._is_white_ish(m) for m in mats):
-                    o.hide_render = True
-                    self.always_hidden.add(o)
-                    self.board_objs.remove(o)
-                    self.station_of.pop(o, None)
-                    log(f"board {bid}: dropped the silkscreen face {o.name}")
-        # KiCad's exported materials, matched by base colour (and by alpha when
-        # the match has four values): the translucent solder mask, the
-        # silkscreen and the FR4 body become opaque looks from the palette. A
-        # mesh with no material at all (a STEP model exported without colour:
-        # the RJ-45 and the BNC jacks) gets `missing_material_look`. Whatever
-        # is left is made opaque, and pure whites are capped.
-        rules = fx.get("material_looks", []); tol = fx.get("match_tolerance", 0.02)
-        cap = fx.get("white_cap"); n_rule = n_missing = 0
-        for o in meshes:
-            if not any(sl.material for sl in o.material_slots):
-                look = fx.get("missing_material_look")
-                if look:
-                    o.data.materials.clear(); o.data.materials.append(self.look_material(look)); n_missing += 1
-                continue
-            for sl in o.material_slots:
-                m = sl.material
-                if not (m and m.use_nodes) or m.name.startswith("look:"):
-                    continue
-                bsdf = next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
-                if bsdf is None:
-                    continue
-                c = bsdf.inputs["Base Color"].default_value
-                a = 1.0 if bsdf.inputs["Alpha"].is_linked else bsdf.inputs["Alpha"].default_value
-                hit = None
-                for rule in rules:
-                    want = rule["match"]
-                    if all(abs(c[i] - want[i]) <= tol for i in range(3)) and (len(want) < 4 or abs(a - want[3]) <= tol):
-                        hit = rule["look"]; break
-                if hit:
-                    sl.material = self.look_material(hit); n_rule += 1
-                    continue
-                if cap and min(c[0], c[1], c[2]) > 0.95:
-                    bsdf.inputs["Base Color"].default_value = (cap, cap, cap, 1)
-                if not bsdf.inputs["Alpha"].is_linked:
-                    bsdf.inputs["Alpha"].default_value = 1.0
-                m.surface_render_method = "DITHERED"
-        log(f"board {bid}: {n_rule} material slots relabelled by colour, {n_missing} meshes without a material given {fx.get('missing_material_look')}")
-        if body is None:
-            log(f"board {bid}: no body mesh found, no proxies"); return
-        lo, hi = body
-        centre = Vector(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, hi.z))  # top face centre
-        for px in fx.get("proxies", {}).get(bid, []):
-            at = centre + Vector((px["x_mm"] / 1000, px["y_mm"] / 1000, 0))
-            objs = []
-            if px.get("mesh"):
-                before = set(bpy.data.objects)
-                # KiCad's model frame is X right, Y up the board, Z the normal: Blender's, so no axis swap
-                bpy.ops.wm.obj_import(filepath=os.path.join(self.root, px["mesh"]), forward_axis="Y", up_axis="Z", global_scale=0.001, use_split_objects=True, use_split_groups=True)
-                objs = [o for o in bpy.data.objects if o not in before and o.type == "MESH"]
-                holder = bpy.data.objects.new(f"proxy:{px['name']}", None)
-                bpy.context.scene.collection.objects.link(holder)
-                for o in objs:
-                    o.parent = holder
-                    look = px.get("look", "black-plastic")
-                    for pat, lk in (px.get("looks_by_name") or {}).items():
-                        if fnmatch.fnmatchcase(base(o.name), pat):
-                            look = lk
-                    o.data.materials.clear(); o.data.materials.append(self.look_material(look))
-                holder.parent = root
-                holder.location = at
-                holder.rotation_euler = (0, 0, math.radians(px.get("rotation_deg", 0)))
-                shapes = [o for o in objs]
-            else:
-                w, h, ht = px["w_mm"] / 1000, px["h_mm"] / 1000, px["height_mm"] / 1000
-                me = bpy.data.meshes.new(f"proxy:{px['name']}")
-                vs = [(at.x + sx * w / 2, at.y + sy * h / 2, at.z + sz * ht) for sz in (0, 1) for sy in (-1, 1) for sx in (-1, 1)]
-                fs = [(0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)]
-                me.from_pydata(vs, [], fs)
-                pr = bpy.data.objects.new(f"proxy:{px['name']}", me)
-                bpy.context.scene.collection.objects.link(pr)
-                pr.parent = root
-                me.materials.append(self.look_material(px.get("look", "black-plastic")))
-                shapes = [pr]
-            for o in shapes:
-                self.station_of[o] = station; self.board_objs.append(o); self.board_of[o] = bid
-            log(f"board {bid}: stand-in for {px['name']} ({'mesh' if px.get('mesh') else 'box'}, {len(shapes)} objects)")
-
-    @staticmethod
-    def _is_white_ish(m):
-        if not m.use_nodes:
-            return False
-        for node in m.node_tree.nodes:
-            if node.type == "BSDF_PRINCIPLED":
-                c = node.inputs["Base Color"].default_value
-                return min(c[0], c[1], c[2]) > 0.9
-        return False
 
     def look_material(self, name):
         """One Blender material per look, made on first use."""
@@ -320,14 +206,7 @@ class Scene:
                 slot.material = self.look_material(look)
             if not o.material_slots:
                 o.data.materials.append(self.look_material((e or {}).get("look") or "grey-plastic"))
-        # the boards: KiCad's materials (those fix_board left), with only the mirror finishes tamed
-        for o in self.board_objs:
-            for slot in o.material_slots:
-                m = slot.material
-                if m and m.use_nodes and not m.name.startswith("look:"):
-                    for node in m.node_tree.nodes:
-                        if node.type == "BSDF_PRINCIPLED" and not node.inputs["Roughness"].is_linked:
-                            node.inputs["Roughness"].default_value = max(node.inputs["Roughness"].default_value, 0.3)
+        # the boards keep the materials their glTF carries: the kicad-libs palette, written by the board's `make docs`
         self.orig_mats = {o: [sl.material for sl in o.material_slots] for o in self.all_objs}
         log(f"looks: {n_entry} slots from the registry, {n_fallback} from the appearance fallback, {len(self.looks)} looks")
         self.context_mat = bpy.data.materials.new("atlas_context"); self.context_mat.use_nodes = True
@@ -536,7 +415,7 @@ class Scene:
         for o, m in self.orig_matrix.items():
             o.matrix_basis = m
         for o in bpy.data.objects:
-            o.hide_render = o in self.always_hidden
+            o.hide_render = False
         bpy.context.view_layer.update()
 
     def explode(self, factor, station):

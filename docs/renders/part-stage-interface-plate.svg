@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 1200" width="1600" height="1200">
 <style>.hs rect{fill:transparent;stroke:transparent;stroke-width:2}.hs:hover rect{stroke:#d9480f;fill:rgba(217,72,15,.08)}.hs text{font:bold 20px sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}.hs circle{fill:#d9480f;stroke:#fff;stroke-width:1.5}</style>
-<image href="part-stage-interface-plate.png?v=8c5104d84378" width="1600" height="1200"/>
+<image href="part-stage-interface-plate.png?v=448566aa368c" width="1600" height="1200"/>
 <a class="hs" xlink:href="../components/gear-train/" href="../components/gear-train/"><title>Spur gear pair</title><rect x="424" y="24" width="322" height="562"/><circle cx="443" cy="43" r="19"/><text x="443" y="43">1</text></a>
 <a class="hs" xlink:href="../components/motor-mount-plate/" href="../components/motor-mount-plate/"><title>Motor mount plate</title><rect x="466" y="44" width="311" height="492"/><circle cx="485" cy="63" r="19"/><text x="485" y="63">2</text></a>
 <a class="hs" xlink:href="../components/limit-switch/" href="../components/limit-switch/"><title>Limit switch</title><rect x="654" y="62" width="119" height="146"/><circle cx="673" cy="81" r="19"/><text x="673" y="81">3</text></a>

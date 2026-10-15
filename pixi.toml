@@ -25,6 +25,7 @@ bom = { cmd = "python atlas/bom.py", description = "docs/bom-mechanical.md from 
 pages = { cmd = "python atlas/pages.py && python atlas/site_pages.py", description = "The component, station and site pages from the registry" }
 overlay = { cmd = "python atlas/overlay.py docs/renders", description = "Clickable SVG overlays and callout legends from the hotspot files" }
 generate = { depends-on = ["bom", "pages", "overlay"], description = "Everything generated except the renders" }
+boards = { cmd = "python atlas/boards.py", description = "Copy the boards' published glTF models from the sibling checkouts (or --ref TAG from GitHub) into atlas/boards and rewrite PROVENANCE.md" }
 site = { cmd = "mkdocs build", depends-on = ["generate"], description = "Build the atlas site into site/" }
 serve = { cmd = "mkdocs serve", description = "Serve the site locally" }
 
