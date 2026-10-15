@@ -18,7 +18,7 @@ firmware it meets.
 | `docs/renders/` | PNG | | Renders of the assembly, one station, exploded views and every part in isolation, generated from the model ([how](atlas/README.md)); the same pages and pictures make [the atlas site](https://peterpolidoro.github.io/mouse-joysticks-mech/) |
 | `docs/` | Markdown | | [One station](docs/station.md), [the parts](docs/components/README.md), [the mechanical BOM](docs/bom-mechanical.md), [the model's frame and units](docs/model.md) |
 | `atlas/` | YAML, Python | | The part registry and the scripts that generate the renders and pages |
-| `manual/` | YAML, Python | | The PDF manual of the whole rig, assembled from the four repositories' pages at their tagged revisions ([how](manual/README.md)); attached to each release of this repository |
+| `manual/` | YAML, Python | | The PDF manual of the whole rig, assembled from the four repositories' pages at the revisions its manifest pins ([how](manual/README.md)); attached to each release of this repository |
 
 The assembly was designed and modelled by Sam Jager (Janelia Research
 Campus) in Autodesk Inventor 2025 and exported to STEP on 2026-07-22; the

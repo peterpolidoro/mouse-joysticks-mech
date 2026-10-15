@@ -73,7 +73,7 @@ if(window.customElements)customElements.whenDefined('model-viewer').then(functio
 - [Operate](operate.md): how a session runs, and where the operating guide is.
 - [Mechanical bill of materials](bom-mechanical.md) and [the model](model.md).
 - [The manual](https://github.com/peterpolidoro/mouse-joysticks-mech/releases): one PDF of these pages with the boards' and the firmware's
-  documentation at their tagged revisions, attached to each release of the repository.
+  documentation at pinned revisions, attached to each release of the repository.
 
 The mechanical design is Sam Jager's (Janelia Research Campus); the boards,
 firmware and this documentation are Peter Polidoro's. Model and documents are

@@ -3,8 +3,7 @@
 The rig's two circuit boards. Each has its own repository with the schematic,
 the layout, the fabrication package, the generated documentation and the
 bring-up record; this page is the door to them. The pictures are the board
-repositories' own renders at the tagged revision, or at `main` where the
-repository has no tag yet.
+repositories' own renders at the tagged revision, `v1.0` for both.
 
 ## Joystick controller board
 

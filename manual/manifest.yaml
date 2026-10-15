@@ -9,9 +9,11 @@
 # there, otherwise from GitHub at the ref, which is what the release workflow
 # does.
 #
-# Keep the refs at the citable tags. The firmware's documentation pages were
-# written after `v1.0.0`, so the manual reads them at the commit that added
-# them until the next tag.
+# Keep the refs at the citable tags where the tag carries the pages. The
+# boards' and the firmware's documentation kept moving after their tags
+# (`v1.0`, `v1.0`, `v1.0.0`), so the manual reads them at the newest
+# documentation commit on `main`; move these three when the pages change, and
+# back to tags when the repositories tag again.
 
 title: The mouse joystick rig
 subtitle: Mechanics, boards, firmware and protocol, assembled from the repositories
@@ -37,9 +39,9 @@ repositories:
 # Shorthands for the refs, so a tag moves in one place.
 refs:
   mech: worktree
-  pcb: v1.0
-  camera: d0a9a7e                # the board is v1.0 (5ddb425); its pages came in the commits after it
-  firm: 3d14f45                  # the documentation commit after v1.0.0
+  pcb: 7752b3d                   # the board is v1.0 (646b8f4); README status, interface map and generated pages updated after it
+  camera: dacb5f5                # the board is v1.0 (5ddb425); its pages and the README's related repositories came after it
+  firm: a5edf78                  # the firmware is v1.0.0 (127d323); documentation, the instrument-port wording and the README's related repositories came after it
 
 parts:
   - title: Operate

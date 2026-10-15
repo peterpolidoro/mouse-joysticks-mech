@@ -16,6 +16,8 @@ authors:
     email: polidorop@janelia.hhmi.org
     affiliation: "Janelia Research Campus, Howard Hughes Medical Institute"
 repository-code: "https://github.com/peterpolidoro/mouse-joysticks-mech"
+version: "1.0"
+date-released: "2026-10-15"
 license: CC-BY-SA-4.0
 keywords:
   - joystick

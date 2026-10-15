@@ -6,7 +6,7 @@ keeps one record of how it was built.
 
 | File | What it is |
 | --- | --- |
-| `manifest.yaml` | the parts of the manual and, in reading order, every document as `<repository>@<ref>:<path>`, with the refs pinned at the citable tags |
+| `manifest.yaml` | the parts of the manual and, in reading order, every document as `<repository>@<ref>:<path>`, with the refs pinned at tags or at the newest documentation commits |
 | `build.py` | fetches each document at its ref, rewrites its figures and links to work inside one file, writes `tmp/manual/manual.md`, then pandoc to typst and typst to PDF |
 
 ```sh
